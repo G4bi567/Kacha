@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>✦ KARD PULL ✦ K-pop Photocard Gacha</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
   
@@ -25,12 +25,14 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body { 
+    html, body { 
       background: var(--bg); 
       color: var(--text); 
       font-family: 'Noto Sans KR', sans-serif; 
       min-height: 100vh; 
-      overflow-x: hidden; 
+      overflow-x: hidden;
+      width: 100%; 
+      position: relative;
     }
 
     body::before {
@@ -2720,18 +2722,25 @@ function slamText(prefix, text, rarity) {
 
     container.appendChild(line);
 
-    document.body.classList.remove('shake-extreme', 'shake-heavy', 'shake-light');
-    void document.body.offsetWidth; // Force Reflow
+    // Grab the main UI container to shake instead of the body
+    const shakeTarget = document.querySelector('.container');
+    
+    shakeTarget.classList.remove('shake-extreme', 'shake-heavy', 'shake-light');
+    void shakeTarget.offsetWidth; // Force Reflow
 
     if (isSSR) {
-      document.body.classList.add('shake-extreme', 'bg-flash-strike');
-      setTimeout(() => document.body.classList.remove('shake-extreme', 'bg-flash-strike'), 400);
+      document.body.classList.add('bg-flash-strike'); // Flash the whole screen
+      shakeTarget.classList.add('shake-extreme');     // Shake the UI
+      setTimeout(() => {
+        document.body.classList.remove('bg-flash-strike');
+        shakeTarget.classList.remove('shake-extreme');
+      }, 400);
     } else if (isSR) {
-      document.body.classList.add('shake-heavy');
-      setTimeout(() => document.body.classList.remove('shake-heavy'), 300);
+      shakeTarget.classList.add('shake-heavy');
+      setTimeout(() => shakeTarget.classList.remove('shake-heavy'), 300);
     } else {
-      document.body.classList.add('shake-light');
-      setTimeout(() => document.body.classList.remove('shake-light'), 200);
+      shakeTarget.classList.add('shake-light');
+      setTimeout(() => shakeTarget.classList.remove('shake-light'), 200);
     }
 
     setTimeout(resolve, isSSR ? 700 : 500);
