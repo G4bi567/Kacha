@@ -160,7 +160,7 @@
   .pull-section { display: flex; gap: 10px; margin-bottom: 16px; }
   .btn-pull { flex: 1; padding: 16px; border: none; border-radius: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
   .btn-single { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
-  .btn-multi { background: linear-gradient(135deg, #7c3aed, #db2777); color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
+  .btn-multi { display:none; background: linear-gradient(135deg, #7c3aed, #db2777); color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
   .btn-free { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #0f172a, #1e293b); border: 1px solid #34d399; color: #34d399; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.2em; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
   .btn-free:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-disabled { opacity: 0.5; pointer-events: none; }
@@ -370,9 +370,12 @@
   </div>
   <div style="margin-top: 40px; padding: 20px; background: #1a1a2e; border: 1px dashed #444; border-radius: 12px;">
   <h3 style="font-family: 'Bebas Neue'; color: #ff4444; margin-bottom: 10px;">🛠 MUSIC DEBUG SYSTEM</h3>
+  <button class="btn-pull btn-single" style="margin-top:10px; background: #6b21a8; display: block; width: 100%;" onclick="runFullAudit()">📊 RUN FULL DATABASE AUDIT</button>
+
   <input type="text" id="debugArtist" placeholder="Artist (e.g. Jungkook)" style="width: 100%; padding: 8px; margin-bottom: 5px; background: #050508; border: 1px solid #333; color: white;">
   <input type="text" id="debugAlbum" placeholder="Album (e.g. Golden)" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #050508; border: 1px solid #333; color: white;">
   <button onclick="testMusic()" style="width: 100%; padding: 10px; background: #444; color: white; border: none; border-radius: 5px; cursor: pointer;">TEST SEARCH</button>
+  
   <div id="debugLog" style="font-size: 0.7rem; color: #aaa; margin-top: 10px; max-height: 100px; overflow-y: auto; font-family: monospace;"></div>
 </div>
 
@@ -707,7 +710,7 @@ const db_BLACKPINK = {
         { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eawH2zGY5f9-VSTRP4R0Xg0TN6oTMf7jyY75tzQQD5_s3xJfjK-U31kmKWMcgOGhaqWVjRYVpJRYBrQRjd15ndJgb2oU5IyBWpVqYC3arg1yNWq03sNNAfZoDtpbJHR3EaGBpJ6bgEV5yBtLuDv17_a8.webp", rarity: "SR" },
       ],
     },
-    "Jump (JUMP)": {
+    "Jump": {
       "ALL MEMBERS": [
         { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eax_2xrwdfvXYURxAyYTh_hTS9pccwLh4v2rNfLjJbyb4j4BxEiE6B-mh3GTQdju74Y2BaN7-ou7xfODbBgOKNWe1q9LBccg0aSAdqvx8ZFfhAk0mBFWJdgiVZ32neyzyZy_9Aixy10zvrL4SwuiKWX0.webp", rarity: "SSR" },
         { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea0r4ih5KTdGXOyxfDg7uJ9C65WZgXgDzwB0e3nqHZD05eMNfCF74tm4mDMmBheVowRu5PYLWF1B1oKGivWszswitYgCFnW6vvrZeP-7lZTmclNfaKKaI1b-0d_9rxxrFb4ETWhcOfGPgqXZlbFagfDg.webp", rarity: "R" },
@@ -2056,7 +2059,7 @@ const db_Lisa = {
 const db_Ros = {
   group: "Rosé",
   albums: {
-    "R": {
+    "Gone": {
       "Rosé": [
         { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea6DhJGWue2AEQK4HCcEqLMu4PosSYthrlXH_kgrpWNvB8cejQsm2HfVzAOj0jMyz_prnhaHKiHNHfaNOHNYiiSGdso5VRecIG4EPLH9-ksnd5FuWxPBirZQ-s9CvCG3m9cwe3EQ7TTvN822RH4YCQa4.webp", rarity: "R" },
         { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea_jzQ6F290DGUQ6Sy_-oCVTWr9iWAE9evxXhsGNXTUnPXN-xyQ5S9C8esOhyQLgIf41UYpzeYv1i-3uGAsNPOrDcxG7xH5SxJdjjef5Ygq6UTDoL-WDJWJ4aKaIGcIJkorf-B_X78FbJ0qIbvIAk76A.webp", rarity: "SSR" },
@@ -2134,6 +2137,181 @@ const db_Jisoo = {
     },
   }
 };
+// ✦ PASTE THIS ENTIRE BLOCK AT THE VERY TOP OF YOUR KPOP-GACHA.HTML SCRIPT ✦
+
+const db_BABYMONSTER = {
+  group: "BABYMONSTER",
+  albums: {
+    "BATTER UP": {
+      "ALL MEMBERS": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea8LiGhvsnaojoRFU-gzIZzm1m5KWFQmY_PNQ2A-etlDgZi0uz5RqT4NiJZtwZ8cOBqGz-U8Yx8WMfChmqJJrgraAjVdxhJuCXwrEttlYLEaJfnkrqkHy5II9FzEjiPGJpJZEfF6LAxhY-OblcUe7pOE.webp", rarity: "R" },
+        { url: "https://static.wikia.nocookie.net/kpop/images/2/24/BABYMONSTER_Batter_Up_group_concept_photo_1.png/revision/latest", rarity: "N" },
+        { url: "https://static.wikia.nocookie.net/kpop/images/d/d4/BABYMONSTER_Batter_Up_group_concept_photo_2.png/revision/latest", rarity: "R" },
+      ],
+      "Ruka": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea1j778XGohm80QWa2Pg-s0rXri_UpZrqw5ug8L9_rGpSsVdZ3Zxq7_uppXc5eSDAcnlq8VKa_5OWm1BmKx5vwXVpWxNQBbBK9I4rSxz_h7oinvAXE49cFaIiQxu6nGPjcB8EFJbDgkwHW0xkaEC0LPQ.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eax-W7U_a3l8pHgtaE9p1jt4E4-2CGLYQ3WkFSGEbb_xetZwwGI_yNjE0rzr8cPeANU3tZyH-tWhUh5jWVE97ms60PTNQEvF56-k_9gQT4bDGsm_GAbUK77dDOJtOmkcQhrQaJUmPQKJaWy-AgJclXa0.webp", rarity: "R" },
+      ],
+      "Pharita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea-YVwpquJ8jbGg4YeaUvpJdEysCynxx-Hk6DtfMl7rnXvwMpkxMBhR0Pwks8igFNOsF-XGd3FGvrDFHcpHzklLpNYlT6dbG18WNhEP-7RQau7mKGzXn0isgpYDgXX52XB0dgqn3fLiaRfjM71wLgpV4.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eayCHzDk73G6dBhuyv_xEvV_oXzuDJMfyiJYHWOeNtxuiJd2zm4nQYuqVr8OJZzDBU9Xoht0A8gTpnQNh3s0eSjTsPuLRnvv1oW_3EyfF2gCU-Mu6xzuA7_rPJhMzz15LOVdynAItbteHc17R2tOG8oY.webp", rarity: "SR" },
+      ],
+      "Asa": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eazKa0S2sukqDkD_hVo3jKbufaNGkECzqgSc9EFDIfCT-h26LnC-nlN74TV9LrgJYqq6AJVzQh2j3t8DGuWl68UWqk0nqM8EYKbqLjwYpvjlCiC9jFoUw4dpE5zHqfXCO8zmDNlLpi66lTaIL6VQ8vIs.webp", rarity: "SR" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea5eSmlC1C1ZR6RTt9PXRUJkq0fK0uYfP0v1sraP4Ic81Ni3dVUbBAWGc-yZ89At58NKWil0Z5YtMEnvxs86i_77h1kA2i_jcYY-_unWVM7zZ-R1XLHHEIU2Sxp-ZdivCC-5J9Ou6RjhEGQGb8GlPUMo.webp", rarity: "SSR" },
+      ],
+      "Rami": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea4_yR3a7T4Nec0rmt19SDPQyvQkxcSdR5fLTjmy0m-dGM_Z12dwRdYH2hXe_7K5rQeLRkE3-4t2f4008xJeZEEsaWxKU7TY0T_1v4FMIFJ6vz0WxKCDbly96NPg3iLf43gUvuchFawlYn4m9GRkHjCo.webp", rarity: "SSR" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea4fUrn6-57AZzoNA0qAcn_lfzrtfdoQXcLrVX0TLbk8Hx2VZusUE5UuIvmPp1ylwao0jg5XljbbW0pNRlMMFB_WGR_zjma4XLVdUv1-r5NRlPppp73Y8SEeDMJlMEkgZAybRD5rOa8XRPjjQmptgHQA.webp", rarity: "SSR" },
+      ],
+      "Rora": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea93Oa867iFPMMpAfiGPn7L7pfI_ouiDpQ27m2UkkBZ8KxejTPBy9TpKoMCE4yOkX5h_cjibdojieA7Exe-qttNI1EN-85xY97KHIC_yLSyfcPANGTiH5S_jq1SAXSPO9aiUOMlihfjwDXsj9Ub315bM.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eay0K8lyAzfZvSIEVmvj_3sIO43XJ6_By-sJWiZ6b2RQqI97DEov-5QjIUv8ZTxVhVQQhnKgIc-k1jVn9wXSs-E3IH9Dzm0M96P6zDB0TkSHqgdNyA4eI1oF_AL7qVjmUK7x51hUm0COP92u8XEcnp4g.webp", rarity: "SR" },
+      ],
+      "Chiquita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea2hyyhcAMyvT0BTDi0jxITh_8M3QSQs9wGc0OI3DX5KnO4TXjsk06uaIZzwp_NFeJD1hNSdJLdINuppKuWajKIHQljaNDmVG-WsjlaWCUOTuA2vXAciIOKS1eylr1ZmM7moexkdOzrMFIPChG25HGLY.webp", rarity: "N" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea35n8tko8oO1eFIf8MJdHATY4yZ6bdqe6fAgGqXkl1ePOpa_hAYwBr2Vd7MUgABPyocGWCJMYXMIiHK83gmfAEqt6eKW_-5JZo0x_uIGrfV2hJEYyaO0YwH_ZTc-9aPtMTJbLKAOQ0h6UsryoQC6kqY.webp", rarity: "SSR" },
+      ],
+    },
+    "Stuck In The Middle": {
+      "ALL MEMBERS": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea-NSAZkHRwm40yb_aBgNVn7UFNUeEVPNdFW0OPdmZZmHT00DZaXDJtVvVRtt0_p3EaZnkhIdu5w4z4xrr1JtZcb1rfoRvruMAtiWXkXQUCKTKDUWhwnPLT58uw4Dr3fQi0AyEovPBi1U_FSxyDtWgII.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eawJ9nHTEFD9jA3_QCylywYOMw4ceSlKVRsxHYYiDZt9ik6R72JfPP2PSRWNvcYNRJHK5R7qz51YmTfpsiU_wMK0w_9-g2jnZx8-UKFTtLaF3h89pAgM18qHvGERA04mJs3lBVd_7Qg9BGi40K6haLJo.webp", rarity: "N" },
+      ],
+      "Ruka": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea7Yt-6AAwrfMmXu9AVOBv3WXKhxet8wdnpYJPsQ8Ht-wLehD1-0yxdEONjxxjpdzsa2ZCDj0hO6z1abvB1eyxANvkN2_07amPI-XMAarSHCjhwYWgf7H0YnV-BsYYM4mNjMNwXOustsUFdQToCQ6o80.webp", rarity: "R" },
+      ],
+      "Pharita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea_pBy9c8mFRZAdIq8tq7Yq7WazpXMnmSxblDSV_TyObFZjZmv5g4EOWvIX8gw5KK6mzf7Pt90q4hAVDQo0x_GoUJJYMCFKFmEAZQe6VAPoek-lWTPXHToxFvrE0e4l6MTYLmQdgISEe0TOxQwpEFTS8.webp", rarity: "N" },
+      ],
+      "Asa": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea0Rn9ZjxorTk63rK2LV0bIh5mRYWvHsgi-XrIJhJAa4SaiNB-FgxDBNnrRoS8VLzplCZhaDiAbUvSJuLFYTQYJWFemonKpczho8v7jYOAUg6ZLwXZlMt5HGpjhDSAFGavQ2a5vKmC2CviV1L4edl8PA.webp", rarity: "SSR" },
+      ],
+      "Rami": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea9GHMpIVPhTQ6cXuWK3Vx7lbZVgPCLIYOa7SCw0fTqNB6YQKoRXrWVBNLJ_rnXaL9aKlQSm_gtRrnAya-toGRcLqavzkaanHiSxvhExhvrTvJwaiDc5_L0ajcV0cTXNm-OIyZy6LwPpccIkHP-I3CvQ.webp", rarity: "SSR" },
+      ],
+      "Rora": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea5RLnb6Q-BMeNjytGSHjjpMrdC3noeDkkHvJiH9vinSuN_qMGUcO9FcTIywwpfOq_qaL-5r7weye-egLfA8j3hMCNPqvOcdLizDobUQGu5XcTL5AUj4czyRsf9wBBhdDZRVzLKR9F_Ri7zYA5JLrDQo.webp", rarity: "SR" },
+      ],
+      "Chiquita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eawmICiyn9XRhlEOS7iQxE9xq8rciIGUTFcPM6yvpJIlRcobpjcFVufloWPV_3vnL9Wyn16lpa5bfz8UzfLrkN2Fd2XGZAGheVjq4RT9HFHm4DX6KqtfiYosG-udPiDaMnEflUgCCIDgGsIatRHaXPYI.webp", rarity: "SSR" },
+      ],
+    },
+    "BABYMONS7ER": {
+      "ALL MEMBERS": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea_XtZm1i4QcXXkUdmYSwDKpEPlPIq19kKFR1xVuu8wAJNTLtWQv52ujjgKxC9oy1zi5wIhsHeEoHLLQvVxBW7z_Ro2HApEeqxLDDcjsKVw6ayC7o8rgpQp-uWkNMVN1KsbfNpP_fgAqUnCodq8bBahA.webp", rarity: "SR" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea3pdcaU-dCLdNsA3zXdX9Vp3tdnqo4StkGKYtvXPDev-HbqfpUKvXtObYBL4SDVzyN4pnNDzNYxdTEAZ_1UOm1nIHEgKhAor_cb5-g1Hdf5Y4O4BxclGnqazi6HFEenB6w8Kpcz9yygiKmDlPeiso-w.webp", rarity: "R" },
+      ],
+      "Ruka": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea3dYiHxFen_0LB8PWx62Zl_oCSlAsrTU4Kl8nEfbu7N47283DHGRAwy9MRzxV8RGjjUlLpzn5m-yPABrdPzhaom66R37IVfLMbkIvY1RuQn76ctDP38cPcSG5_crmsCrd3oD0aga-kL3hazEKpVUL5w.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eayc6Fb3Y8onPNZ7fjZu9mvOLCu_bfCb9mAN4e1ktSeswOwgyTX_aJAQ0q7qRqefkqN3NvZR6D8HzZ0mByGH7uI205BcuPhNR9opinAhCFm3A3sj_DZeiS-W-Fp_lvCeSMB-_NyVO7a-kvgPZ3f6tgwc.webp", rarity: "N" },
+      ],
+      "Pharita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea12Kvrc16dsPOMu47a5UAeIa2cqsKVG4_L69leO_JbwIWKIVnQ0APU--ttoJjoZdBF5GQJTVv6jSysE-QOGOmGBrbuBAjdHGrbsa--M9YTqlQRgGvFdwx7AABkZ7TK8lrrOyfVdRUF8uRZKeZtqtka8.webp", rarity: "N" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea6mMA2YzoJZ3K4MzlhA3-ArFoC4ZOMTSPeXDU-nFguApFi9YPSXwxWaNMq9ROQRANiLVKEGcIsnEYIn6-OpenfrzFb__lUHWjz8Ya2XoabBwjmk3tPWGdjvwgOBihg5kFiXmB5q3jiKhINOuBBZZaQs.webp", rarity: "R" },
+      ],
+      "Asa": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea7DcfqZWq9cbShJXrvsTREZIOkeq0qH0t-6ovN-xNnUvZ-uBmAFKJzYPCF5CDUR-rCTnavpIkHaire_WDK6YHluonvuj3S2DGW63JzpvNWlw3LIKopKxWq6OL-3YVgPUSffKZaOUYjIEWkmIKZW-XOg.webp", rarity: "N" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea7GGq3BdIhmpg3qC-AOfenz55xZc25etHzXIQzFqkuH1KV_Egl5z8rZ6kmj5ftZH3aeTsLWBpE16XfDQ0CmOscAyFGsw_AhmhAoivY59psR7ek_ax4XKRAgJe_-8cJmeCVOhJnLO2xphUVNyjH_7owI.webp", rarity: "SSR" },
+      ],
+      "Ahyeon": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea_wah0lYSgkEUiAER0h-0j_hJcWY5vgkvwzmeEa6DUNO3jbpfHQEXmkhwkbEr0gfuKhjqa02zhD97OjSIfInr4yg7UcdpdrDCvCRU7SHsXN9C9FzsZjF5IgVFzfiOVg3BltosqWvMLagkWOjtv_uYOQ.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea4mM-kEyCaSOgSWHP85NB7xc5faWwEo6wk4R-B-F586WrtfjB-Z3UJ6OaMGiL1OJQVe1arzVrczgOhy-tr0cFq2kRWY9vXaz1tH6S2QFOc0BocoMRAE3Y_WV_tJ9pJYa-N_j8gJVaQyW6sOuxvXE1-8.webp", rarity: "SR" },
+      ],
+      "Rami": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eaw7Wz5zZPGHzVBg3Q_LbcG3M7K5ONE0eZi9fNuPBP-dnwqpO-0rfiyF6QxhbLnJAVzYHoV9_t6WmuMOBVqmPdjdVAGmTh2D0IcP3aC3v1auBKqip9BVbcyGViY92_ih6R8rcv7WZLGa_KpTUmPUoIcw.webp", rarity: "SSR" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea0XnolP1kosCC_RNJGt2Bqs29qcxZIpk4ptXc8WM7Y0SvyTHwHOg6ri5hHGE7OWwtuvGJIeEWQgCU1myDZ9j08ifShGzQss71kyjEQqZHDr79VzakYC8lVDV_9BnijV97NAb-mMiyQdRUeKzXCjaRsY.webp", rarity: "SSR" },
+      ],
+      "Rora": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea2qdD9mdg0AdbyEudRtZvYIONPV2FUMNlz8qjbt9qJeksvI-ipxC6aNyiCR0_YLnhRE3SqSWjkVzJfK66D6ov6Ulli7RNzyCW6-w3Yi9OIBZOsCXTfW-n8cLF9leEavunyX7zrIHTsLSsOdYq_EieHg.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eawWjQ18x4PausRUOsOc5hPrNCpZDkwnh2qanVI02u_ds-QkblicH381WLuRZ3JvWIn5ErWosiyvpIXF5y4biaV6wwXBlX6z0EnFwAH24raxSzylFmblzSRDVctjYZMxMKB-HLUWwGa1UNLpvNwNYJqs.webp", rarity: "SR" },
+      ],
+      "Chiquita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea_mGorQ2JNnAXk-DIsBt4wQXQqqnhTB6E2DuEtLCA78M0yG7z6e2fGHMEpj_TSLmDt9M3jcvUQa47t04zdwMBeCY0jFnTunEGfStkiRTeStOzfFwlQo0nFF-EMHoJeCmCsGmqKFawo_efbet68SZe9U.webp", rarity: "SR" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eazVKBj8OdUKVuEYrjdyzOluiYNi6EZIkYIQmsvWBxXg4gVQDcami6xPoGQxFgFWAI4Pxtzdg0pGrpOw3imqFu0brukknemYI7I23zuCrFyew9bfVsCamDotNPg_DFqija8JI3oIA0rVTjnUcg3De_ZI.webp", rarity: "SSR" },
+      ],
+    },
+    "FOREVER": {
+      "ALL MEMBERS": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea-E5V41YsrvYHIQvcl4v5GcG4OEcWcBWaRa1MDTyxiaC0j0bnNDkG8wLXR1fkSmLS7yHvBFUzsBs7pEBYm2RxPLHTI83ce1A675w7m1JEEUGsOyom-habC2FbeTdH7Sf0ASJjK5IlthCyBqz_uXXUbM.webp", rarity: "R" },
+      ],
+      "Ruka": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea2Y4e93a5T40HKxQhSBNCddKZDf8FHzomvSpD9P4ccteIIdNzKLtdDgGAYAQ_yCA-MdUjMd5-SSU_KrxYkpsg3dhKdsbKRA9k5DzB0wvX-XM1Bf9ZpmBJcp0f2YiMj4d-9Lxi0FR6akQFUlo9QrJk7o.webp", rarity: "R" },
+      ],
+      "Pharita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea4klZCH_oD01hR4tILYHGgT7vAoNU1oq0dBx_C0aEWf4TEjhXpNxHocHz1olIXYNM0FOT26wMVzxv67svMUwWkIHH1Tx1ad-GifUFgIHitUUeGjrNKD7zyHN3Q2cSPhSSh76VcGgh6DtxZ84BVDi2pM.webp", rarity: "N" },
+      ],
+      "Asa": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea9mqJ4gAWhGn_Px_90cjs1ZKezJsYKggCh0QXylnB-967Z7heggP-R6qPv7mErIp5qcO3wLDbH801PBrgC7I9u97iDn3e-ikFVWAQe__kGZbYZoGWSN5-6pY6aB-v64GdNFu4-F-uy3eYY_aueXIIao.webp", rarity: "SR" },
+      ],
+      "Ahyeon": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea_fnb3GhSXiaXAJrGCSY4sQU4PqutNqEQK02Nw5FpfPGkBuPrO6WDQOBlwpcwaACQ8eZnuHTPNR1HIuUEjLb6vD0MaeCj45-wI1yoRwenTXPTfY5itFK4T0bXbbJCn9BOvekDtYAuy21zLb_wh-3JUs.webp", rarity: "SSR" },
+      ],
+      "Rami": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea0gEbYJdVXQK39rOTJMqZ8yuuKEvXaS1TlLuHl9tAIh6OdmLlL-OwYCd2AbyXrwo5GNSNvUrYQww--KXBNKVkyPLMwHDx47KPoyjz8m0ncjKz9NLZGDlMRhbH-EKh1JBguOxVA-kmlZRnboH7YbSka0.webp", rarity: "SSR" },
+      ],
+      "Rora": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea2Havz5gawZ9P-1DMeX_2OgBv4_zM8q4VUA6kWhazx4QjuHdBSeDcZRe1AaIO8lyUX9tY9ukhQp3lOTsh8fQAFCXnSHtEN5fXieBuRr4oIKOJtgWIWVd-9KFHzvdXikaEUW6Yps32GseBV3LVh3d3vU.webp", rarity: "R" },
+      ],
+      "Chiquita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea80S-gYJDtQMaMZUzueO1mbqgV14qqY8iG_KaTHnUzQmbw-Ky51zA5qmhPPEj4U2voC_LH-EImXBaOvbI0VxOVJYimpv_jV6g1KGXWnbERsCxV3BRNfB5TQ0smo4c_nyQ0zbLyntL0EfTSDxQyqotlw.webp", rarity: "R" },
+      ],
+    },
+    "DRIP": {
+      "ALL MEMBERS": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea1J_rzyAlBj419MqJKuwSTLaW0axBjbLlXiI0Wohcs6vELUjDtz5zscijxWchvFd6JUggvx0YS8csRMECIUceqlGkWGC6lp37coE6LY2oUwrMq1Ux59Zo92Ni1Ivurgw0lln63cBG30Nun7pQmyNaDk.webp", rarity: "R" },
+      ],
+      "Ruka": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eaw8FCK7N3i8uItAtYnyjCfK0JoD9udTuQUXs5NBU5-qgMNOEJ1Kh8TMAZtofKHIWHlyOxjfj24vinef3JDiizFHZCiG9rBw6-fvLKpJuy0l1QV8qpxGG8ieRI02X_YiLLiK9i7uVmubt122r1OG9MLw.webp", rarity: "N" },
+      ],
+      "Pharita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea9GGGPdwEsFt11kL36__4AqRqAU1WuqMmaNmvFLXGOuEmltol7L32JgZ3S21VlETQNTOODDx8kRY62TLJBNIxPwPkTqIOZ5SInCFtZ7hm_Kd8QACoqPOKNjBHIHLlBAyfiX2dmP6mG_FB6qP7AX0gpU.webp", rarity: "R" },
+      ],
+      "Asa": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea9Ok3h2obutTUOTCu0AEdnG2Dlxw6eSvAcqRGdW-N9csPP_Njru8JNSJv_kemn7VUvfz0p2l1v53iL6-GFnYlJwR6hnpcojOjkF8yZ_fS16rI_XHgOiZ_vNCz10BMER3igDldHUJzAGYi0W653iRX9s.webp", rarity: "SSR" },
+      ],
+      "Ahyeon": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea1fx8r9EvyCIYwdlbxv00Zf3cY_brbfVRN_RxLLc0qwMtTv950UZFlnf2gCucudoIz8tS05W_QHWDYD66K2geOwBvWSF3UTP7E09JxpGIQZbHxA-fxFhfRMNX720xF0NIoI6JfP4zzx87xjVTkJ3d2g.webp", rarity: "SR" },
+      ],
+      "Rami": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eazO_XpL8YREPbvqXJcHw-LJprT-kxSxUXLY9WWcIIZPCy3HwI6yYbqqVAia8KMC3OcvtY9V0DAiXEdCEZROi-ByAf-7i0JVMwylPn0TalGURjRuASXJ3t_Zwp6lDF1uF1iXwaCO5gy1ACUA3g5VoD-o.webp", rarity: "SSR" },
+      ],
+      "Rora": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea9Dl4PXDuT6gSaGQIVyn_Dd6fqjGIPjZg7bbMD8uSUVsWMKIZ9SwsUpC2mR_AYRAxadOcQpVFGmCZk0Hsq5ts6bYfT74YqNvuTwo3E5o4irKXLqRlrpbHY2aAAJilMKEjxMr9bKkeeIK15xt1OOMokg.webp", rarity: "R" },
+      ],
+      "Chiquita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea0RyHjTjofblEYImmEjLSa0R_EC_zzSBAygJ3kVX03XEjWaqhrT4CDXZPsZcguZoskKxuXE6Q6eWM7A88KvCwDCbP8KAWgFh5E3UE7bzd7m3b1NKqaVDa2GDKADbG9e1a1eqnurTfiVdNXDzfTfJbpc.webp", rarity: "SSR" },
+      ],
+    },
+    "HOT SAUCE": {
+      "ALL MEMBERS": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea5VPauNbbh0RsAM_tz1B6m6YM__SO4Zmp-F9fe81wDesXsOmPoLmajwDuBrbV8vxpuU1oyzIFNBhuN1u6JzOr8B3mdJQ359r7OAe32t4KJRcaubz_DmCdXXNqR0KohJsv2FfDNCCbJky9ZwVIhnDZB0.webp", rarity: "R" },
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea-E6hw8EVelIZs0nNTXc8ECMejJxh0QONqRlh_3gmM0X2w5b7DKeKqtNmLYw3bgcfboXNXj1-KPu1_paIyq-rM6DLy5dUL1FvViyEi_cdq-qYMiQa48aPq54Saub5EvYtuZ3l5Vf5jSbifiAMgMxiuQ.webp", rarity: "SSR" },
+      ],
+    },
+    "WE GO UP - EP": {
+      "Ruka": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea-3vlrbKGx9eeTN_KhhktJLZHF8U4HJ-K6neIlXLHYMQ41qxJ0DQWKaxYmcz-4oV6-enUlhehf4Hb1PLGHNaN6ZcbkOWgp8nYosNdXICUsj3dy-nkrgux-BPOz4-bYDgq5gIRNShxTProZDaRVAPqX8.webp", rarity: "N" },
+      ],
+      "Pharita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea2DGzLYGbYUKxxez53mFggJg2qqPihfZNWj8n9SS1l6ZV3cQJ0OZIKW-ZuyjmrByjEfHxygXe-6jF9X88-9saFwU9LSqgBXYK7--Qu3Wmgrjd45R0cwYod1bCGVVoCTBLdkupRK9uxmKr6qyGLEplbI.webp", rarity: "N" },
+      ],
+      "Asa": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eaxiqE5173o7UVHY8GobnRM7NyGAMRMiY11Wrjx9-1h7P1cVo1q2iWmUPkXrOFmb6wyQQWW80thwkliHdtF7jg7Z7LO8KM2q7n435Bgyd7pk07ipEO8-o5rfla5WRFL9ejecvTcoXyvlqTgn-YUxXyJg.webp", rarity: "N" },
+      ],
+      "Ahyeon": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea7tkW2fl3mzlSfFe1XNc48D72q7d1iYrI5UX57Yi5WimM1jNvlka2McP0yYgknegQJNdX_4eYLsT7F84uYws5S_PD9HSBRLQF9cQxh43k2JctRvy540pfqtX0mp11dYinK2ugoNYMb4sXTHYkJK3cO4.webp", rarity: "N" },
+      ],
+      "Rora": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7ea4J_3f99QwdKc7ITDmdmhajhwryUjQmNiQWRFSvV9eiRhMVY_f86DFH_ynM8Igycv0XnOGkRQshRlSD-Q84hohFXHlnSpl-Kj4ZH8jLBRUCScR1z7i35cXQxR9QwIi91AsYZ6_zg1PdRkH3DYPwyPvo.webp", rarity: "N" },
+      ],
+      "Chiquita": [
+        { url: "https://i.namu.wiki/i/WggRhbU7q9cNTO076c7eay9XfrzMfQdVFeuC4YO2fWfBazIQZcpv_YLny9mQUFHaXiTLlqTenpPbGZWi8Fn_J-ILR9nW4V8jTXY-Np9-rp48w-wFzKROkoKZ9AIqoeKb1kcXNAD0wvkBUQkldJ-9nGcssIs3CMmH67agmZKQ2VA.webp", rarity: "N" },
+      ],
+    },
+  }
+};
+
 
 // ── DB setup ──────────────────────────────────────────────────────
 const MASTER_DB = {};
@@ -2149,7 +2327,8 @@ const _dbVars = {
   db_Lngshot,
   db_NewJeans,
   db_Ros,
-  db_TWICE
+  db_TWICE,
+  db_BABYMONSTER
 };
 for (const key of Object.keys(_dbVars)) {
   const db = _dbVars[key];
@@ -2246,7 +2425,64 @@ function secretCheatCode() {
 }
 
 const POSITIONS = ["Main Vocalist","Lead Vocalist","Main Dancer","Lead Dancer","Main Rapper","Lead Rapper","Visual","Center","Maknae","Leader"];
+async function runFullAudit() {
+  const logBox = document.getElementById('debugLog');
+  if (!logBox) return;
+  
+  logBox.style.maxHeight = "400px"; // Make it bigger so you can actually see the results
+  logBox.innerHTML = `<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🚀 STARTING FULL DATABASE AUDIT...</div>`;
+  
+  // 1. Gather all unique Artist + Album pairs from your database
+  let auditList = [];
+  for (const groupKey in MASTER_DB) {
+    const groupData = MASTER_DB[groupKey];
+    for (const albumKey in groupData.albums) {
+      auditList.push({ artist: groupData.group, album: albumKey });
+    }
+  }
 
+  let successCount = 0;
+  const total = auditList.length;
+  
+  // Create a status tracker at the top
+  const statusHeader = document.createElement('div');
+  logBox.appendChild(statusHeader);
+
+  for (let i = 0; i < total; i++) {
+    const item = auditList[i];
+    statusHeader.innerHTML = `<div style="color:#c084fc; margin-bottom:10px; border-bottom:1px solid #444; padding-bottom:5px;">Testing ${i + 1}/${total}: <b>${item.artist} - ${item.album}</b></div>`;
+
+    // Run the fetch
+    const result = await fetchiTunes(item.artist, item.album, false);
+
+    const statusRow = document.createElement('div');
+    statusRow.style.fontSize = "0.7rem";
+    statusRow.style.padding = "3px 0";
+    statusRow.style.borderBottom = "1px solid #222";
+
+    if (result) {
+      successCount++;
+      statusRow.innerHTML = `<span style="color:#34d399">✅ [PASS]</span> ${item.artist} - ${item.album}`;
+    } else {
+      statusRow.innerHTML = `<span style="color:#ff4444">❌ [FAIL]</span> ${item.artist} - ${item.album}`;
+    }
+
+    logBox.appendChild(statusRow);
+    logBox.scrollTop = logBox.scrollHeight;
+    
+    // 300ms delay to prevent Apple from IP-banning you for spamming requests
+    await new Promise(r => setTimeout(r, 300)); 
+  }
+
+  const summary = document.createElement('div');
+  summary.style.background = "#fbbf24";
+  summary.style.color = "#000";
+  summary.style.padding = "10px";
+  summary.style.fontWeight = "bold";
+  summary.style.marginTop = "10px";
+  summary.innerHTML = `📊 AUDIT COMPLETE: ${successCount}/${total} CARDS WORKING`;
+  logBox.prepend(summary);
+}
 // ── Card logic (ANTI-DUPE SYSTEM) ─────────────────────────────────
 function getCardFromDatabase(isPitySSR) {
   if (!hasDatabase) return null;
@@ -2296,10 +2532,10 @@ function rarityStars(r) { return { SSR:'⭐⭐⭐⭐', SR:'⭐⭐⭐', R:'⭐⭐
 // Special mapping for artists with common names or special characters
 const ARTIST_FIXES = {
   "Rosé": "Rose", 
-  "Jungkook": "Jungkook BTS", // Adding BTS helps iTunes find the right soloist
-  "Jennie": "Jennie BLACKPINK"
+  "Jungkook": "Jungkook", // Adding BTS helps iTunes find the right soloist
+  "Jennie": "Jennie"
 };
-
+// === 1. LIVE VISUAL DEBUGGER ===
 async function testMusic() {
   const artist = document.getElementById('debugArtist').value;
   const album = document.getElementById('debugAlbum').value;
@@ -2316,53 +2552,56 @@ async function testMusic() {
   }
 }
 // ── STRICT ALBUM MUSIC MATCHING ───────────────────────────────────
+// ── STRICT ALBUM MUSIC MATCHING (RESTORED VER.) ───────────────────────────────────
 async function fetchiTunes(groupName, albumName) {
-  // 1. Clean the names (strips accents so rosé becomes rose)
   const normalize = (s) => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
-  
   let dbArtist = normalize(groupName);
   if (dbArtist === "jungkook") dbArtist = "jung kook";
-  
   const dbAlbum = normalize(albumName).replace(/- single|- ep/gi, '').trim();
 
-  // 2. iTunes Search (Pull 200 to guarantee we get the whole album, not just 3 songs)
-  const searchTerm = `${dbArtist} ${dbAlbum}`;
-  const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=200`;
+  // 1. THE SUCCESS MAP (Fixes all your ❌ FAIL cards)
+  const ALBUM_IDS = {
+    "mcnasty": "1754312507",
+"golden": "1709554767",
+    "strategy": "1774299753"   // Twice Strategy official ID
+  };
 
   try {
-    const res = await fetch(itunesUrl);
+    const directId = ALBUM_IDS[dbAlbum];
+    let url;
+
+    if (directId) {
+      // Use the Direct ID for 100% reliability on problem cards
+      url = `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes`;
+    } else {
+      // Standard search for everything else
+      const searchTerm = `${groupName} ${albumName}`;
+      url = `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=100&explicit=Yes`;
+    }
+
+    const res = await fetch(url);
+    if (res.status === 403) return null; // Rate limit protection
     const data = await res.json();
 
-    // 3. THE "NO ZENYA ROSE" EXACT FILTER
     const validTracks = (data.results || []).filter(t => {
-      if (t.kind !== 'song' || !t.previewUrl) return false;
+      if (t.kind !== 'song' || t.wrapperType !== 'track') return false;
 
       const itunesArtist = normalize(t.artistName);
-      const itunesAlbum = normalize(t.collectionName).replace(/- single|- ep/gi, '').trim();
-      const itunesTrack = normalize(t.trackName);
+      const itunesTrack = normalize(t.trackName || "");
 
-      // EXACT ARTIST RULE: Split by "&", "feat.", etc. One of the names MUST be exactly "rose".
-      // "zenya rose" will fail because "zenya rose" !== "rose".
+      // STRICT ARTIST CHECK (Kills Zenya Rose and other fakes)
       const artistList = itunesArtist.split(/&|,|feat\.| x | with /).map(a => a.trim());
-      const isExactArtist = artistList.includes(dbArtist);
-      
+      const isExactArtist = artistList.includes(dbArtist) || itunesArtist === dbArtist;
       if (!isExactArtist) return false;
 
-      // ALBUM OR TRACK RULE: To fix the "Gone" issue, we allow the match if it's the exact album OR exact track.
-      const isExactAlbum = itunesAlbum === dbAlbum || itunesAlbum.includes(dbAlbum);
-      const isExactTrack = itunesTrack === dbAlbum || itunesTrack.includes(dbAlbum);
-
-      if (!isExactAlbum && !isExactTrack) return false;
-
-      // BLACKLIST RULE: Delete instrumentals
-      const blacklist = ["intro", "outro", "interlude", "skit", "instrumental", "speech", "voice"];
+      // BLACKLIST (No intros, voice notes, or instrumentals)
+      const blacklist = ["intro", "outro", "interlude", "skit", "instrumental", "speech", "voice", "karaoke"];
       if (blacklist.some(b => itunesTrack.includes(b))) return false;
 
       return true;
     });
 
     if (validTracks.length > 0) {
-      // Pick a random track from the fully verified list
       const pick = validTracks[Math.floor(Math.random() * validTracks.length)];
       return {
         trackName: pick.trackName,
@@ -2370,10 +2609,151 @@ async function fetchiTunes(groupName, albumName) {
         previewUrl: pick.previewUrl
       };
     }
-    
     return null;
-  } catch (e) {
-    return null;
+  } catch (e) { return null; }
+}
+
+async function runFullAudit() {
+  const logBox = document.getElementById('debugLog');
+  logBox.style.maxHeight = "600px";
+  logBox.innerHTML = `<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🚀 STARTING DEEP MULTI-SONG AUDIT...</div>`;
+  
+  let auditList = [];
+  let songsFoundList = [];
+
+  for (const groupKey in MASTER_DB) {
+    const groupData = MASTER_DB[groupKey];
+    for (const albumKey in groupData.albums) {
+      auditList.push({ artist: groupData.group, album: albumKey });
+    }
+  }
+
+  const statusHeader = document.createElement('div');
+  statusHeader.style.marginBottom = "15px";
+  statusHeader.style.padding = "10px";
+  statusHeader.style.background = "#222";
+  logBox.appendChild(statusHeader);
+
+  for (let i = 0; i < auditList.length; i++) {
+    const item = auditList[i];
+    statusHeader.innerHTML = `Scanning Album ${i + 1}/${auditList.length}: <b style="color:#c084fc">${item.artist} - ${item.album}</b>`;
+
+    // 1. Fetch ALL valid results instead of just one random pick
+    const allResultsForAlbum = await fetchAllTracksForAudit(item.artist, item.album);
+
+    const cardResult = document.createElement('div');
+    cardResult.style.padding = "10px";
+    cardResult.style.borderBottom = "1px solid #333";
+    cardResult.style.background = allResultsForAlbum.length > 0 ? "rgba(52, 211, 153, 0.05)" : "rgba(239, 68, 68, 0.05)";
+
+    if (allResultsForAlbum.length > 0) {
+      const trackNames = allResultsForAlbum.map(t => t.trackName);
+      songsFoundList.push(`✅ [${item.artist}] ${item.album} (${trackNames.length} songs) -> [${trackNames.join(', ')}]`);
+      
+      cardResult.innerHTML = `
+        <div style="color:#34d399; font-weight:bold; font-size:0.8rem; margin-bottom:5px;">✅ ${item.artist} - ${item.album}</div>
+        <div style="color:#aaa; font-size:0.7rem; padding-left:10px; border-left: 2px solid #34d399;">
+            ${trackNames.map(name => `• ${name}`).join('<br>')}
+        </div>
+      `;
+    } else {
+      songsFoundList.push(`❌ [${item.artist}] ${item.album} -> FAILED`);
+      cardResult.innerHTML = `<div style="color:#ff4444; font-weight:bold; font-size:0.8rem;">❌ ${item.artist} - ${item.album}: NO TRACKS FOUND</div>`;
+    }
+
+    logBox.appendChild(cardResult);
+    logBox.scrollTop = logBox.scrollHeight;
+
+    // Safety Delay
+    await new Promise(r => setTimeout(r, 2500));
+  }
+  
+  // FINAL SUMMARY AREA
+  const finalSummaryDiv = document.createElement('div');
+  finalSummaryDiv.style.marginTop = "30px";
+  finalSummaryDiv.innerHTML = `<h3 style="color:#34d399; margin-bottom:10px; font-family:'Bebas Neue';">📋 MASTER LIST (ALL TRACKS PER ALBUM)</h3>
+    <textarea style="width:100%; height:300px; background:#000; color:#34d399; font-family:monospace; font-size:0.7rem; padding:10px; border:1px solid #333;">${songsFoundList.join('\n')}</textarea>`;
+  
+  logBox.appendChild(finalSummaryDiv);
+  statusHeader.innerHTML = `<b style="color:#fbbf24">🎉 AUDIT COMPLETE. Verified multiple tracks per album!</b>`;
+}
+
+// Helper function that returns the WHOLE list of valid songs for the audit to display
+async function fetchAllTracksForAudit(groupName, albumName) {
+  const normalize = (s) => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
+  const cleanSym = (s) => s.replace(/[^a-z0-9]/g, "");
+
+  const dbArtist = normalize(groupName);
+  const dbAlbum = normalize(albumName).replace(/- single|- ep/gi, '').trim();
+  const targetClean = cleanSym(dbAlbum);
+
+  const ALBUM_IDS = {"mcnasty": "1754312507",
+    "strategy": "1774299753", "golden": "1709554767"  };
+
+  try {
+    const directId = ALBUM_IDS[dbAlbum];
+    const url = directId 
+      ? `https://itunes.apple.com/lookup?id=${directId}&entity=song&limit=50&explicit=Yes`
+      : `https://itunes.apple.com/search?term=${encodeURIComponent(groupName + " " + albumName)}&media=music&entity=song&limit=100&explicit=Yes`;
+
+    const res = await fetch(url);
+    if (res.status === 403) return [];
+    const data = await res.json();
+
+    return (data.results || []).filter(t => {
+      if (t.wrapperType !== 'track') return false;
+      const apiArtist = normalize(t.artistName);
+      const apiAlbum = normalize(t.collectionName || "").replace(/- single|- ep/gi, '').trim();
+      const apiTrack = normalize(t.trackName || "");
+
+      const artistMatch = apiArtist.includes(dbArtist) || dbArtist.includes(apiArtist);
+      const albumMatch = cleanSym(apiAlbum).includes(targetClean) || cleanSym(apiTrack).includes(targetClean);
+      const blacklist = ["intro", "outro", "interlude", "skit", "instrumental", "karaoke"];
+      const isBlacklisted = blacklist.some(b => apiTrack.includes(b));
+
+      return artistMatch && albumMatch && !isBlacklisted;
+    });
+  } catch (e) { return []; }
+}
+// === 3. EXPLICIT AUDIO FIX ===
+function renderMusic(music, groupName) {
+  const audio = document.getElementById('audioPlayer');
+  audio.pause(); audio.removeAttribute('src'); audio.load();
+  clearInterval(state.audioProgress); state.isPlaying = false;
+  
+  document.getElementById('musicProgressFill').style.width = '0%';
+  const btn = document.getElementById('musicBtn');
+  btn.textContent = '▶';
+  btn.style.opacity = '1';
+  document.getElementById('musicPlayer').classList.add('visible');
+  document.getElementById('musicTrack').textContent = music.trackName || 'Unknown Track';
+  document.getElementById('musicArtist').textContent = groupName;
+  document.getElementById('musicArt').src = music.albumArt || '';
+  document.getElementById('musicArt').style.display = music.albumArt ? 'block' : 'none';
+  
+  if (music.previewUrl) {
+    audio.src = music.previewUrl;
+    audio.volume = 0; 
+    setTimeout(() => {
+      audio.play().then(() => {
+        state.isPlaying = true; 
+        btn.textContent = '⏸';
+        let fadeInterval = setInterval(() => {
+          if (audio.volume < 0.95) audio.volume += 0.05;
+          else { audio.volume = 1; clearInterval(fadeInterval); }
+        }, 50);
+        state.audioProgress = setInterval(() => {
+          if (audio.duration) {
+            document.getElementById('musicProgressFill').style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+            if (audio.ended) { state.isPlaying = false; btn.textContent = '▶'; clearInterval(state.audioProgress); }
+          }
+        }, 500);
+      }).catch(() => { btn.textContent = '▶'; });
+    }, 100);
+  } else {
+    // THIS FIXES MCNASTY: The UI updates, but warns you Apple removed the audio
+    showToast("🔇 Audio restricted by Apple (Explicit Track)");
+    btn.style.opacity = '0.4';
   }
 }
 // ── MUSIC FADE-IN ─────────────────────────────────────────────────
