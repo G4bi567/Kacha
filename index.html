@@ -368,6 +368,13 @@
       <div class="stat-label">Gems 💎</div>
     </div>
   </div>
+  <div style="margin-top: 40px; padding: 20px; background: #1a1a2e; border: 1px dashed #444; border-radius: 12px;">
+  <h3 style="font-family: 'Bebas Neue'; color: #ff4444; margin-bottom: 10px;">🛠 MUSIC DEBUG SYSTEM</h3>
+  <input type="text" id="debugArtist" placeholder="Artist (e.g. Jungkook)" style="width: 100%; padding: 8px; margin-bottom: 5px; background: #050508; border: 1px solid #333; color: white;">
+  <input type="text" id="debugAlbum" placeholder="Album (e.g. Golden)" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #050508; border: 1px solid #333; color: white;">
+  <button onclick="testMusic()" style="width: 100%; padding: 10px; background: #444; color: white; border: none; border-radius: 5px; cursor: pointer;">TEST SEARCH</button>
+  <div id="debugLog" style="font-size: 0.7rem; color: #aaa; margin-top: 10px; max-height: 100px; overflow-y: auto; font-family: monospace;"></div>
+</div>
 
   <div class="pity-section">
     <div class="pity-label">SSR Pity</div>
@@ -2286,8 +2293,13 @@ function getCardFromDatabase(isPitySSR) {
   };
 }
 function rarityStars(r) { return { SSR:'⭐⭐⭐⭐', SR:'⭐⭐⭐', R:'⭐⭐', N:'⭐' }[r] || '⭐'; }
+// Special mapping for artists with common names or special characters
+const ARTIST_FIXES = {
+  "Rosé": "Rose", 
+  "Jungkook": "Jungkook BTS", // Adding BTS helps iTunes find the right soloist
+  "Jennie": "Jennie BLACKPINK"
+};
 
-// ── STRICT ALBUM MUSIC MATCHING ───────────────────────────────────
 async function testMusic() {
   const artist = document.getElementById('debugArtist').value;
   const album = document.getElementById('debugAlbum').value;
@@ -2304,55 +2316,53 @@ async function testMusic() {
   }
 }
 // ── STRICT ALBUM MUSIC MATCHING ───────────────────────────────────
-// UPDATE your fetchiTunes with this enhanced version
 async function fetchiTunes(groupName, albumName) {
-  // 1. CLEAN NAMES: Create versions that work for iTunes
-  const cleanArtist = groupName.toLowerCase().trim();
-  const cleanAlbum = albumName.toLowerCase().replace(/- Single|- EP/gi, '').trim();
+  // 1. Clean the names (strips accents so rosé becomes rose)
+  const normalize = (s) => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
   
-  // Mapping for specific artists that iTunes handles weirdly
-  const specialFixes = {
-    "jungkook": "Jung Kook",
-    "rose": "Rosé",
-    "jennie": "JENNIE"
-  };
+  let dbArtist = normalize(groupName);
+  if (dbArtist === "jungkook") dbArtist = "jung kook";
   
-  const searchArtist = specialFixes[cleanArtist] || groupName;
-  const blacklist = ["intro", "outro", "interlude", "skit", "talk", "speech", "commentary", "version", "instrumental"];
+  const dbAlbum = normalize(albumName).replace(/- single|- ep/gi, '').trim();
 
-  // 2. HELPER: Atomic cleaning for the strict verification step
-  const atomic = (s) => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "") : "";
-
-  // 3. ATTEMPT SEARCH
-  // We use a broad search term but a high limit to find the needle in the haystack
-  const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(searchArtist + " " + cleanAlbum)}&media=music&entity=song&limit=50`;
+  // 2. iTunes Search (Pull 200 to guarantee we get the whole album, not just 3 songs)
+  const searchTerm = `${dbArtist} ${dbAlbum}`;
+  const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=200`;
 
   try {
     const res = await fetch(itunesUrl);
     const data = await res.json();
-    
-    // VERIFICATION: Filter the 50 results to find the BEST match
-    let validTracks = (data.results || []).filter(t => {
-      const tTitle = t.trackName.toLowerCase();
-      const tArtist = atomic(t.artistName);
-      const tAlbum = atomic(t.collectionName);
-      
-      const isBlacklisted = blacklist.some(word => tTitle.includes(word));
-      const artistMatch = tArtist.includes(atomic(groupName)) || atomic(groupName).includes(tArtist);
-      const albumMatch = tAlbum.includes(atomic(cleanAlbum)) || atomic(cleanAlbum).includes(tAlbum);
 
-      return t.previewUrl && !isBlacklisted && artistMatch && albumMatch;
+    // 3. THE "NO ZENYA ROSE" EXACT FILTER
+    const validTracks = (data.results || []).filter(t => {
+      if (t.kind !== 'song' || !t.previewUrl) return false;
+
+      const itunesArtist = normalize(t.artistName);
+      const itunesAlbum = normalize(t.collectionName).replace(/- single|- ep/gi, '').trim();
+      const itunesTrack = normalize(t.trackName);
+
+      // EXACT ARTIST RULE: Split by "&", "feat.", etc. One of the names MUST be exactly "rose".
+      // "zenya rose" will fail because "zenya rose" !== "rose".
+      const artistList = itunesArtist.split(/&|,|feat\.| x | with /).map(a => a.trim());
+      const isExactArtist = artistList.includes(dbArtist);
+      
+      if (!isExactArtist) return false;
+
+      // ALBUM OR TRACK RULE: To fix the "Gone" issue, we allow the match if it's the exact album OR exact track.
+      const isExactAlbum = itunesAlbum === dbAlbum || itunesAlbum.includes(dbAlbum);
+      const isExactTrack = itunesTrack === dbAlbum || itunesTrack.includes(dbAlbum);
+
+      if (!isExactAlbum && !isExactTrack) return false;
+
+      // BLACKLIST RULE: Delete instrumentals
+      const blacklist = ["intro", "outro", "interlude", "skit", "instrumental", "speech", "voice"];
+      if (blacklist.some(b => itunesTrack.includes(b))) return false;
+
+      return true;
     });
 
-    // 4. FALLBACK: If album match failed, just get any song by that artist
-    if (validTracks.length === 0) {
-      validTracks = (data.results || []).filter(t => {
-        return t.previewUrl && atomic(t.artistName).includes(atomic(groupName)) && !blacklist.some(word => t.trackName.toLowerCase().includes(word));
-      });
-    }
-
     if (validTracks.length > 0) {
-      // Pick a random one from the successful matches
+      // Pick a random track from the fully verified list
       const pick = validTracks[Math.floor(Math.random() * validTracks.length)];
       return {
         trackName: pick.trackName,
@@ -2360,8 +2370,11 @@ async function fetchiTunes(groupName, albumName) {
         previewUrl: pick.previewUrl
       };
     }
-  } catch(e) { console.error("iTunes Error:", e); }
-  return null;
+    
+    return null;
+  } catch (e) {
+    return null;
+  }
 }
 // ── MUSIC FADE-IN ─────────────────────────────────────────────────
 function renderMusic(music, groupName) {
