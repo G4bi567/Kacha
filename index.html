@@ -1,338 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>✦ KARD PULL ✦ K-pop Photocard Gacha</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #050508;
-    --surface: #0e0e18;
-    --border: #2a2a4a;
-    --text: #f0eeff;
-    --muted: #7070a0;
-    --accent1: #c084fc;
-    --accent2: #f472b6;
-    --accent3: #67e8f9;
-    --gold: #fbbf24;
-    --ssr: linear-gradient(135deg, #fbbf24, #f472b6, #c084fc, #67e8f9);
-    --sr: linear-gradient(135deg, #c084fc, #818cf8);
-    --r: linear-gradient(135deg, #34d399, #06b6d4);
-    --n: linear-gradient(135deg, #94a3b8, #64748b);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; overflow-x: hidden; }
-
-  body::before {
-    content: ''; position: fixed; inset: 0;
-    background: radial-gradient(ellipse 60% 40% at 20% 20%, rgba(192,132,252,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(244,114,182,0.07) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 60% at 50% 50%, rgba(103,232,249,0.04) 0%, transparent 70%);
-    pointer-events: none; z-index: 0;
-  }
-
-  .container { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
-
-  .header { text-align: center; padding: 30px 0 24px; }
-  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: 0.15em; background: var(--ssr); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
-  .logo-sub { font-size: 0.7rem; letter-spacing: 0.4em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
-
-  .stats-bar { display: flex; gap: 8px; margin-bottom: 20px; }
-  .stat-pill { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
-  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--accent1); line-height: 1; }
-  .stat-label { font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
-
-  .pity-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-  .pity-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
-  .pity-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .pity-bar-fill { height: 100%; background: var(--ssr); border-radius: 2px; transition: width 0.4s ease; }
-  .pity-count { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--accent1); white-space: nowrap; }
-/* 1. Define the overall Card container */
-.card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden; /* Ensures the image doesn't pop out of rounded corners */
-  width: 300px;     /* Or whatever responsive width you need */
-  display: flex;
-  flex-direction: column;
-}
-/* 2. Define the container for the image section */
-.card-image-wrapper {
-  width: 100%;
-  height: 200px; /* Set a fixed height for all images in your cards */
-  overflow: hidden;
-}
-
-/* 3. Style the actual image inside the wrapper */
-.card-image-wrapper img {
-  width: 100%;
-  height: 100%;    /* Force the image to match the wrapper's dimensions */
-  object-fit: cover; /* MAGICAL PROPERTY: Scale to fill, preserve ratio, crop excess */
-  object-position: center; /* Center the crop */
-  cursor: pointer;   /* Show it's clickable */
-}
-
-/* 4. The text area of your card */
-.card-content {
-  padding: 15px;
-}
-  .card-stage { position: relative; width: 100%; height: 420px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
-  .card-placeholder { width: 260px; height: 380px; border: 2px dashed var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; }
-  .card-placeholder .star { font-size: 2rem; opacity: 0.3; animation: pulse 3s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
-
-  .card-wrapper { width: 260px; height: 380px; perspective: 1000px; display: none; cursor: pointer; }
-  .card-wrapper.visible { display: block; }
-  .card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .card-inner.flipped { transform: rotateY(180deg); }
-  .card-face { position: absolute; inset: 0; border-radius: 20px; backface-visibility: hidden; overflow: hidden; }
-
-  .card-back { background: var(--surface); border: 2px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-  .card-back-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 0.2em; background: var(--ssr); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .card-back-pattern { position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(192,132,252,0.03) 10px, rgba(192,132,252,0.03) 20px); }
-
-  .card-front { transform: rotateY(180deg); display: flex; flex-direction: column; background: #000; }
-  .card-photo-container { position: relative; width: 100%; flex: 1; min-height: 0; background: #050508; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-
-.card-photo { width: 100%; height: 100%; object-fit: cover; object-position: top center; background: #050508; display: block; opacity: 0; transition: opacity 0.5s ease; }
-  .card-photo.revealed { opacity: 1; }
-
-  .card-info { padding: 12px 14px 14px; background: rgba(5,5,8,0.95); backdrop-filter: blur(10px); z-index: 10; border-top: 1px solid var(--border); }
-  .card-group { font-size: 0.6rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
-  .card-member { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.1em; line-height: 1; color: var(--text); }
-  .card-album { font-size: 0.65rem; color: var(--accent1); margin-top: 2px; font-style: italic; font-family: 'Playfair Display', serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-  .card-rarity { font-size: 0.9rem; letter-spacing: 0.05em; opacity: 0; transition: opacity 0.5s; }
-  .card-position { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; opacity: 0; transition: opacity 0.5s; }
-  .card-ver { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 7px; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--text); text-transform: uppercase; backdrop-filter: blur(6px); z-index: 15; opacity: 0; transition: opacity 0.5s; }
-
-  /* click hint on card */
-  .card-wrapper.visible .card-hint { display: block; }
-  .card-hint { display: none; position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
-
-  .card-front.unrevealed { border: 2px solid var(--border); box-shadow: none; }
-  .rarity-ssr .card-front.revealed { box-shadow: 0 0 0 2px transparent; border: 2px solid transparent; background: var(--ssr); background-clip: padding-box; }
-  .rarity-ssr.revealed { border: 2px solid #fbbf24; box-shadow: 0 0 30px rgba(251,191,36,0.4), 0 0 60px rgba(244,114,182,0.2); }
-  .rarity-sr.revealed { border: 2px solid #c084fc; box-shadow: 0 0 20px rgba(192,132,252,0.3); }
-  .rarity-r.revealed { border: 2px solid #34d399; box-shadow: 0 0 15px rgba(52,211,153,0.2); }
-  .rarity-n.revealed { border: 2px solid var(--border); }
-  .rarity-ssr .card-front.revealed::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%); background-size: 200% 100%; animation: shimmer 3s ease-in-out infinite; pointer-events: none; z-index: 20; }
-  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-  /* ── LIGHTBOX ── */
-  .lightbox { position: fixed; inset: 0; background: rgba(5,5,8,0.96); backdrop-filter: blur(16px); z-index: 600; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; cursor: pointer; }
-  .lightbox.visible { display: flex; animation: lbIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-  @keyframes lbIn { from { opacity:0; transform: scale(0.85); } to { opacity:1; transform: scale(1); } }
-
-.lightbox-card { width: min(380px, 90vw); position: relative; display: flex; flex-direction: column; cursor: default; background: transparent; border: none !important; }
-  .lightbox-card img { width: 100%; display: block; max-height: 80vh; object-fit: contain; background: transparent; border-radius: 16px; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
-  .lightbox-info { padding: 14px 16px 16px; background: rgba(5,5,8,0.97); border-top: 1px solid var(--border); }
-  .lightbox-group { font-size: 0.6rem; letter-spacing: 0.35em; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
-  .lightbox-member { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.08em; line-height: 1; color: var(--text); }
-  .lightbox-album { font-size: 0.7rem; color: var(--accent1); margin-top: 3px; font-style: italic; font-family: 'Playfair Display', serif; }
-  .lightbox-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-  .lightbox-rarity { font-size: 1rem; }
-  .lightbox-pos { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
-  .lightbox-ver { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 3px 8px; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--text); text-transform: uppercase; backdrop-filter: blur(6px); }
-  .lightbox-close-hint { margin-top: 18px; font-size: 0.65rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; }
-
-  /* rarity borders on lightbox card */
-  .lb-ssr { border: 2px solid #fbbf24; box-shadow: 0 0 40px rgba(251,191,36,0.5), 0 0 80px rgba(244,114,182,0.25); }
-  .lb-sr  { border: 2px solid #c084fc; box-shadow: 0 0 30px rgba(192,132,252,0.4); }
-  .lb-r   { border: 2px solid #34d399; box-shadow: 0 0 20px rgba(52,211,153,0.3); }
-  .lb-n   { border: 2px solid var(--border); }
-  .lb-ssr::after { content:''; position:absolute; inset:0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%); background-size:200% 100%; animation: shimmer 3s ease-in-out infinite; pointer-events:none; z-index:20; }
-
-  .music-player { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: none; align-items: center; gap: 12px; }
-  .music-player.visible { display: flex; }
-  .music-album-art { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
-  .music-info { flex: 1; overflow: hidden; }
-  .music-track { font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .music-artist { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
-  .music-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--accent1); border: none; color: #000; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s, background 0.2s; }
-  .music-btn:hover { transform: scale(1.1); background: var(--accent2); }
-  .music-progress { width: 100%; height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
-  .music-progress-fill { height: 100%; background: var(--accent1); border-radius: 2px; width: 0%; transition: width 0.5s linear; }
-
-  .pull-section { display: flex; gap: 10px; margin-bottom: 16px; }
-  .btn-pull { flex: 1; padding: 16px; border: none; border-radius: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
-  .btn-single { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
-  .btn-multi { display:none; background: linear-gradient(135deg, #7c3aed, #db2777); color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
-  .btn-free { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #0f172a, #1e293b); border: 1px solid #34d399; color: #34d399; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.2em; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
-  .btn-free:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-disabled { opacity: 0.5; pointer-events: none; }
-
-  .multi-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-  .multi-grid.visible { display: grid; }
-  .multi-card-item { aspect-ratio: 2/3; border-radius: 12px; overflow: hidden; position: relative; animation: cardReveal 0.5s ease forwards; opacity: 0; cursor: pointer; }
-  .multi-card-item img { width: 100%; height: 100%; object-fit: contain; background: #050508; }
-  .multi-card-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 6px 6px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
-  .multi-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; line-height: 1; }
-  .multi-card-sub { font-size: 0.5rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .modal-overlay { position: fixed; inset: 0; background: rgba(5,5,8,0.95); backdrop-filter: blur(10px); display: none; z-index: 500; flex-direction: column; padding: 40px 20px; overflow-y: auto; }
-  .modal-overlay.visible { display: flex; }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .modal-header h2 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.2em; color: var(--accent1); }
-  .modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
-  .collection-group-section { margin-bottom: 30px; }
-  .collection-group-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 15px; }
-  .collection-album-title { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--accent1); margin-bottom: 10px; font-style: italic; letter-spacing: 0.05em; }
-  .modal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-  .mini-card { aspect-ratio: 2/3; border-radius: 10px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s; }
-  .mini-card:hover { transform: scale(1.05); }
-  .mini-card img { width: 100%; height: 100%; object-fit: contain; background: #050508; }
-  .mini-card img { width: 100%; height: 100%; object-fit: cover; object-position: top center; background: #050508; } 
-   .mini-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 6px 4px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); font-size: 0.55rem; letter-spacing: 0.1em; }
-  .mini-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; line-height: 1; }
-  .mini-rarity-ssr { border: 1.5px solid #fbbf24; }
-  .mini-rarity-sr { border: 1.5px solid #c084fc; }
-  .mini-rarity-r { border: 1.5px solid #34d399; }
-  .mini-rarity-n { border: 1.5px solid var(--border); }
-
-  @keyframes cardReveal { 0% { opacity: 0; transform: scale(0.5) translateY(30px) rotateY(-90deg); } 100% { opacity: 1; transform: scale(1) translateY(0) rotateY(0deg); } }
-  .card-wrapper.animate { animation: cardReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-  .flash-overlay { position: fixed; inset: 0; background: white; opacity: 0; pointer-events: none; z-index: 200; transition: opacity 0.1s; }
-  .flash-overlay.flash { opacity: 0.8; }
-  .particles-container { position: fixed; inset: 0; pointer-events: none; z-index: 150; overflow: hidden; }
-  .particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: particleFly 1.2s ease-out forwards; }
-  @keyframes particleFly { 0% { opacity: 1; transform: translate(0,0) scale(1); } 100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); } }
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 10px 20px; font-size: 0.75rem; letter-spacing: 0.1em; opacity: 0; transition: all 0.3s; z-index: 700; white-space: nowrap; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  .reveal-hype-overlay { position: fixed; inset: 0; background: rgba(5,5,8,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 400; font-family: 'Bebas Neue', sans-serif; text-align: center; color: #fff; }
-  .reveal-hype-overlay.visible { display: flex; }
-  .big-text-reveal { font-size: 4.5rem; color: #fff; margin-bottom: 20px; text-shadow: 0 0 15px var(--accent1); transform: scale(1); transition: transform 0.2s ease; line-height: 1; text-align: center; padding: 0 20px; }
-  .big-text-reveal.pop { transform: scale(1.1); color: var(--accent3); }
-  .revealing-label { font-size: 1rem; color: var(--muted); letter-spacing: 0.3em; margin-bottom: 5px; text-transform: uppercase; }
-
-  .multi-loading { display: none; align-items: center; justify-content: center; height: 100px; width: 100%; color: var(--accent1); font-family: 'Bebas Neue'; letter-spacing: 0.2em; font-size: 1.5rem; }
-  .multi-loading.visible { display: flex; animation: pulse 1.5s infinite; }
-
-  /* ── EPIC GACHA ANIMATIONS ── */
-  /* ── EPIC GACHA ANIMATIONS ── */
-  @keyframes shakeIntense {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(-8px, 8px) rotate(-1deg); }
-    50% { transform: translate(8px, -8px) rotate(1deg); }
-    75% { transform: translate(-8px, -8px) rotate(-1deg); }
-  }
-  @keyframes shakeMild {
-    0%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(-3px, 3px); }
-    50% { transform: translate(3px, -3px); }
-    75% { transform: translate(-3px, -3px); }
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✦ KARD PULL ✦ K-pop Photocard Gacha</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
   
-  .shake-intense { animation: shakeIntense 0.1s infinite; border-radius: 0; box-shadow: inset 0 0 150px rgba(251,191,36,0.3); }
-  .shake-mild { animation: shakeMild 0.2s infinite; box-shadow: inset 0 0 100px rgba(192,132,252,0.2); }
+  <style>
+    :root {
+      --bg: #050508;
+      --surface: #0e0e18;
+      --border: #2a2a4a;
+      --text: #f0eeff;
+      --muted: #7070a0;
+      --accent1: #c084fc;
+      --accent2: #f472b6;
+      --accent3: #67e8f9;
+      --gold: #fbbf24;
+      --ssr: linear-gradient(135deg, #fbbf24, #f472b6, #c084fc, #67e8f9);
+      --sr: linear-gradient(135deg, #c084fc, #818cf8);
+      --r: linear-gradient(135deg, #34d399, #06b6d4);
+      --n: linear-gradient(135deg, #94a3b8, #64748b);
+    }
 
-  /* Physical Card Drop Animation */
-  @keyframes cardDropIn {
-    0% { opacity: 0; transform: translateY(-120px) scale(1.3) rotateZ(-10deg); }
-    100% { opacity: 1; transform: translateY(0) scale(1) rotateZ(0deg); }
-  }
-  .card-wrapper.animate { animation: cardDropIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* Glowing Auras instead of Flashbangs */
-/* ── BRIGHTER GLOWING AURAS ── */
-  .card-wrapper.aura-ssr::before {
-    content: ''; position: absolute; inset: -100px;
-    background: radial-gradient(circle, rgba(251,191,36,0.6) 0%, rgba(244,114,182,0.3) 40%, transparent 70%);
-    z-index: -10; animation: pulseAura 1.5s infinite alternate; pointer-events: none;
-    filter: blur(10px);
-  }
-  .card-wrapper.aura-sr::before {
-    content: ''; position: absolute; inset: -80px;
-    background: radial-gradient(circle, rgba(192,132,252,0.5) 0%, rgba(129,140,248,0.3) 50%, transparent 70%);
-    z-index: -10; animation: pulseAura 1.5s infinite alternate; pointer-events: none;
-    filter: blur(10px);
-  }
-  @keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.7; } 100% { transform: scale(1.1); opacity: 1; } }
-  /* ── MASSIVE SCREEN SHAKES ── */
-  @keyframes shakeExtreme {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    10%, 30%, 50%, 70%, 90% { transform: translate(-20px, 20px) rotate(-3deg); }
-    20%, 40%, 60%, 80% { transform: translate(20px, -20px) rotate(3deg); }
-  }
-  .shake-extreme { animation: shakeExtreme 0.25s cubic-bezier(.36,.07,.19,.97) both; box-shadow: inset 0 0 200px rgba(251,191,36,0.3); }
-  .shake-heavy { animation: shakeIntense 0.2s cubic-bezier(.36,.07,.19,.97) both; box-shadow: inset 0 0 100px rgba(192,132,252,0.2); }
-  .shake-light { animation: shakeMild 0.15s cubic-bezier(.36,.07,.19,.97) both; }
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      font-family: 'Noto Sans KR', sans-serif; 
+      min-height: 100vh; 
+      overflow-x: hidden; 
+    }
 
-  /* ── STACKING TEXT SLAM ── */
-  .hype-text-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
-  
-  .hype-line {
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 20% 20%, rgba(192,132,252,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 50% at 80% 80%, rgba(244,114,182,0.07) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 60% at 50% 50%, rgba(103,232,249,0.04) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .container { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    /* ── HEADER & STATS ── */
+    .header { text-align: center; padding: 30px 0 24px; }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: 0.15em; background: var(--ssr); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+    .logo-sub { font-size: 0.7rem; letter-spacing: 0.4em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+
+    .stats-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+    .stat-pill { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
+    .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--accent1); line-height: 1; }
+    .stat-label { font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+
+    .pity-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+    .pity-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+    .pity-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .pity-bar-fill { height: 100%; background: var(--ssr); border-radius: 2px; transition: width 0.4s ease; }
+    .pity-count { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--accent1); white-space: nowrap; }
+
+    /* ── MAIN CARD STAGE ── */
+    .card-stage { position: relative; width: 100%; height: 420px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+    .card-placeholder { width: 260px; height: 380px; border: 2px dashed var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; }
+    .card-placeholder .star { font-size: 2rem; opacity: 0.3; animation: pulse 3s ease-in-out infinite; }
+    
+    .card-wrapper { width: 260px; height: 380px; perspective: 1000px; display: none; cursor: pointer; }
+    .card-wrapper.visible { display: block; }
+    .card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .card-inner.flipped { transform: rotateY(180deg); }
+    .card-face { position: absolute; inset: 0; border-radius: 20px; backface-visibility: hidden; overflow: hidden; }
+
+    .card-back { background: var(--surface); border: 2px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .card-back-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 0.2em; background: var(--ssr); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-back-pattern { position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(192,132,252,0.03) 10px, rgba(192,132,252,0.03) 20px); }
+
+    .card-front { transform: rotateY(180deg); display: flex; flex-direction: column; background: #000; }
+    .card-photo-container { position: relative; width: 100%; flex: 1; min-height: 0; background: #050508; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+    .card-photo { width: 100%; height: 100%; object-fit: cover; object-position: top center; background: #050508; display: block; opacity: 0; transition: opacity 0.5s ease; }
+    .card-photo.revealed { opacity: 1; }
+
+    .card-info { padding: 12px 14px 14px; background: rgba(5,5,8,0.95); backdrop-filter: blur(10px); z-index: 10; border-top: 1px solid var(--border); }
+    .card-group { font-size: 0.6rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
+    .card-member { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.1em; line-height: 1; color: var(--text); }
+    .card-album { font-size: 0.65rem; color: var(--accent1); margin-top: 2px; font-style: italic; font-family: 'Playfair Display', serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .card-rarity, .card-position, .card-ver { opacity: 0; transition: opacity 0.5s; }
+    .card-rarity { font-size: 0.9rem; letter-spacing: 0.05em; }
+    .card-position { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
+    .card-ver { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 7px; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--text); text-transform: uppercase; backdrop-filter: blur(6px); z-index: 15; }
+
+    .card-wrapper.visible .card-hint { display: block; }
+    .card-hint { display: none; position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+
+    /* Rarity Borders */
+    .card-front.unrevealed { border: 2px solid var(--border); box-shadow: none; }
+    .rarity-ssr .card-front.revealed { box-shadow: 0 0 0 2px transparent; border: 2px solid transparent; background: var(--ssr); background-clip: padding-box; }
+    .rarity-ssr.revealed { border: 3px solid #fbbf24 !important; box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4) !important; }
+    .rarity-sr.revealed { border: 2px solid #c084fc; box-shadow: 0 0 20px rgba(192,132,252,0.3); }
+    .rarity-r.revealed { border: 2px solid #34d399; box-shadow: 0 0 15px rgba(52,211,153,0.2); }
+    .rarity-n.revealed { border: 2px solid var(--border); }
+    
+    .rarity-ssr .card-front.revealed::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%); background-size: 200% 100%; animation: shimmer 3s ease-in-out infinite; pointer-events: none; z-index: 20; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox { position: fixed; inset: 0; background: rgba(5,5,8,0.96); backdrop-filter: blur(16px); z-index: 600; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; cursor: pointer; }
+    .lightbox.visible { display: flex; animation: lbIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+    .lightbox-card { width: min(380px, 90vw); position: relative; display: flex; flex-direction: column; cursor: default; background: transparent; border: none !important; }
+    .lightbox-card img { width: 100%; display: block; max-height: 80vh; object-fit: contain; border-radius: 16px; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+    .lightbox-close-hint { margin-top: 18px; font-size: 0.65rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; }
+    
+    .lb-ssr { border: 2px solid #fbbf24; box-shadow: 0 0 40px rgba(251,191,36,0.5), 0 0 80px rgba(244,114,182,0.25); }
+    .lb-sr  { border: 2px solid #c084fc; box-shadow: 0 0 30px rgba(192,132,252,0.4); }
+    .lb-r   { border: 2px solid #34d399; box-shadow: 0 0 20px rgba(52,211,153,0.3); }
+    .lb-n   { border: 2px solid var(--border); }
+    .lb-ssr::after { content:''; position:absolute; inset:0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%); background-size:200% 100%; animation: shimmer 3s ease-in-out infinite; pointer-events:none; z-index:20; }
+
+    /* ── MUSIC PLAYER & BUTTONS ── */
+    .music-player { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: none; align-items: center; gap: 12px; }
+    .music-player.visible { display: flex; }
+    .music-album-art { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    .music-info { flex: 1; overflow: hidden; }
+    .music-track { font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .music-artist { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
+    .music-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--accent1); border: none; color: #000; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, background 0.2s; }
+    .music-btn:hover { transform: scale(1.1); background: var(--accent2); }
+    .music-progress { width: 100%; height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+    .music-progress-fill { height: 100%; background: var(--accent1); border-radius: 2px; width: 0%; transition: width 0.5s linear; }
+
+    .pull-section { display: flex; gap: 10px; margin-bottom: 16px; }
+    .btn-pull { flex: 1; padding: 16px; border: none; border-radius: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+    .btn-single { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-free { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #0f172a, #1e293b); border: 1px solid #34d399; color: #34d399; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.2em; cursor: pointer; margin-bottom: 16px; transition: all 0.2s; }
+    .btn-free:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-disabled { opacity: 0.5; pointer-events: none; }
+
+    /* ── MODALS (COLLECTION & MINIGAME) ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(5,5,8,0.95); backdrop-filter: blur(10px); display: none; z-index: 500; flex-direction: column; padding: 40px 20px; overflow-y: auto; }
+    .modal-overlay.visible { display: flex; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.2em; color: var(--accent1); }
+    .modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+    
+    .collection-group-section { margin-bottom: 30px; }
+    .collection-group-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 15px; }
+    .collection-album-title { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--accent1); margin-bottom: 10px; font-style: italic; letter-spacing: 0.05em; }
+    .modal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    
+    .mini-card { aspect-ratio: 2/3; border-radius: 10px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s; }
+    .mini-card:hover { transform: scale(1.05); }
+    .mini-card img { width: 100%; height: 100%; object-fit: cover; object-position: top center; background: #050508; } 
+    .mini-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 6px 4px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); font-size: 0.55rem; letter-spacing: 0.1em; }
+    .mini-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; line-height: 1; }
+    
+    .mini-rarity-ssr { border: 1.5px solid #fbbf24; }
+    .mini-rarity-sr { border: 1.5px solid #c084fc; }
+    .mini-rarity-r { border: 1.5px solid #34d399; }
+    .mini-rarity-n { border: 1.5px solid var(--border); }
+
+    /* ── ANIMATIONS & EFFECTS ── */
+    @keyframes cardDropIn { 0% { opacity: 0; transform: translateY(-120px) scale(1.3) rotateZ(-10deg); } 100% { opacity: 1; transform: translateY(0) scale(1) rotateZ(0deg); } }
+    .card-wrapper.animate { animation: cardDropIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    
+    .flash-overlay { position: fixed; inset: 0; background: white; opacity: 0; pointer-events: none; z-index: 200; transition: opacity 0.1s; }
+    .flash-overlay.flash { opacity: 0.8; }
+    .bg-flash-strike { animation: flashWhite 0.3s ease-out forwards; }
+    @keyframes flashWhite { 0% { background-color: rgba(255,255,255,0.8); } 100% { background-color: var(--bg); } }
+    
+    .particles-container { position: fixed; inset: 0; pointer-events: none; z-index: 150; overflow: hidden; }
+    .particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: particleFly 1.2s ease-out forwards; }
+    @keyframes particleFly { 0% { opacity: 1; transform: translate(0,0) scale(1); } 100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); } }
+    
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 10px 20px; font-size: 0.75rem; letter-spacing: 0.1em; opacity: 0; transition: all 0.3s; z-index: 700; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Hype Overlay */
+    #revealHypeOverlay { position: fixed; inset: 0; background: rgba(5,5,8,0.9); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 400; font-family: 'Bebas Neue', sans-serif; text-align: center; color: #fff; pointer-events: none; }
+    #revealHypeOverlay.visible { display: flex; }
+    .revealing-label { font-size: 1rem; color: var(--muted); letter-spacing: 0.3em; margin-bottom: 5px; text-transform: uppercase; }
+    .hype-text-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+    
+    .hype-line {
+    position: relative; /* <--- Changed this from absolute to relative */
     font-size: 3rem;
     color: #fff;
     text-shadow: 0 0 15px var(--accent1);
-    line-height: 1;
+    line-height: 1.2;
     text-align: center;
-    opacity: 0;
-    /* Starts from a random angle and massive size */
-    transform: translate(var(--startX), var(--startY)) scale(var(--startScale));
-    animation: slamIn var(--dur) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-  .hype-line.ssr-hype {
-    color: var(--gold);
-    text-shadow: 0 0 30px var(--gold);
-    font-size: 4.5rem;
-  }
-/* NEW: Violet style for SR pulls */
-  .hype-line.sr-hype {
-    color: var(--accent1); /* This is your glowing purple color */
-    text-shadow: 0 0 30px var(--accent1);
-    font-size: 4rem; 
-  }
-  
-  @keyframes slamIn {
-    to { opacity: 1; transform: translate(0, 0) scale(1); }
-  }
-  /* ── EPIC GACHA UPGRADES ── */
-  /* 1. The Shockwave Ring */
-  .shockwave {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 260px; height: 380px;
-    border-radius: 20px;
-    transform: translate(-50%, -50%) scale(0.8);
+    width: 100%;
     opacity: 0;
     pointer-events: none;
-    z-index: 5;
-  }
-  @keyframes expandWave {
-    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; border-width: 30px; border-style: solid; }
-    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-width: 0px; border-style: solid; }
-  }
-  .shockwave.wave-ssr { border-color: var(--gold); animation: expandWave 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; box-shadow: 0 0 50px var(--gold); }
-  .shockwave.wave-sr { border-color: var(--accent1); animation: expandWave 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+    transform: translate(0, 0) scale(1);
+    animation: slamIn var(--dur) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .hype-line.ssr-hype { color: var(--gold); text-shadow: 0 0 30px var(--gold); font-size: 4.5rem; }
+    .hype-line.sr-hype { color: var(--accent1); text-shadow: 0 0 30px var(--accent1); font-size: 4rem; }
+    .hype-line.ssr-glitch { color: #fff; font-size: 5rem; animation: slamIn var(--dur) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, glitchAnim 0.2s infinite; }
+    
+    @keyframes slamIn { from { opacity: 0; transform: translate(var(--startX), var(--startY)) scale(var(--startScale)); } to { opacity: 1; transform: translate(0, 0) scale(1); } }
+    @keyframes glitchAnim {
+      0% { transform: translate(3px, 3px); text-shadow: -3px 0 red, 3px 0 cyan; }
+      25% { transform: translate(-3px, -3px); text-shadow: 3px 0 red, -3px 0 cyan; }
+      50% { transform: translate(3px, -3px); text-shadow: -3px 0 red, 3px 0 cyan; }
+      75% { transform: translate(-3px, 3px); text-shadow: 3px 0 red, -3px 0 cyan; }
+      100% { transform: translate(0, 0); text-shadow: 0 0 40px var(--gold); color: var(--gold); }
+    }
 
-  /* 2. SSR Glitch Text */
-  .hype-line.ssr-glitch {
-    color: #fff;
-    font-size: 5rem;
-    animation: slamIn var(--dur) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, glitchAnim 0.2s infinite;
-  }
-  @keyframes glitchAnim {
-    0% { transform: translate(3px, 3px); text-shadow: -3px 0 red, 3px 0 cyan; }
-    25% { transform: translate(-3px, -3px); text-shadow: 3px 0 red, -3px 0 cyan; }
-    50% { transform: translate(3px, -3px); text-shadow: -3px 0 red, 3px 0 cyan; }
-    75% { transform: translate(-3px, 3px); text-shadow: 3px 0 red, -3px 0 cyan; }
-    100% { transform: translate(0, 0); text-shadow: 0 0 40px var(--gold); color: var(--gold); }
-  }
+    /* Screen Shakes */
 
-  /* 3. Background Flashbang */
-  .bg-flash-strike {
-    animation: bgStrike 0.4s ease-out forwards;
-  }
-  @keyframes bgStrike {
-    0% { background-color: #fff; }
-    100% { background-color: var(--bg); }
-  }
-</style>
+    @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
+
+    /* Screen Shakes */
+    @keyframes shakeExtreme {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      10%, 30%, 50%, 70%, 90% { transform: translate(-6px, 6px) rotate(-1deg); }
+      20%, 40%, 60%, 80% { transform: translate(6px, -6px) rotate(1deg); }
+    }
+    @keyframes shakeHeavy {
+      0%, 100% { transform: translate(0, 0); }
+      10%, 30%, 50%, 70%, 90% { transform: translate(-4px, 4px); }
+      20%, 40%, 60%, 80% { transform: translate(4px, -4px); }
+    }
+    @keyframes shakeLight {
+      0%, 100% { transform: translate(0, 0); }
+      10%, 30%, 50%, 70%, 90% { transform: translate(-2px, 2px); }
+      20%, 40%, 60%, 80% { transform: translate(2px, -2px); }
+    }
+
+    .shake-extreme { animation: shakeExtreme 0.4s linear both; }
+    .shake-heavy { animation: shakeHeavy 0.3s linear both; }
+    .shake-light { animation: shakeLight 0.2s linear both; }
+
+    /* Shockwaves & Auras */
+    .shockwave { position: absolute; top: 50%; left: 50%; width: 260px; height: 380px; border-radius: 20px; transform: translate(-50%, -50%) scale(0.8); opacity: 0; pointer-events: none; z-index: 5; }
+    @keyframes expandWave { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; border-width: 30px; border-style: solid; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-width: 0px; border-style: solid; } }
+    .shockwave.wave-ssr { border-color: var(--gold); animation: expandWave 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; box-shadow: 0 0 50px var(--gold); }
+    .shockwave.wave-sr { border-color: var(--accent1); animation: expandWave 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+
+    .card-wrapper.aura-ssr::before { content: ''; position: absolute; inset: -100px; background: radial-gradient(circle, rgba(251,191,36,0.6) 0%, rgba(244,114,182,0.3) 40%, transparent 70%); z-index: -10; animation: pulseAura 1.5s infinite alternate; pointer-events: none; filter: blur(10px); }
+    .card-wrapper.aura-sr::before { content: ''; position: absolute; inset: -80px; background: radial-gradient(circle, rgba(192,132,252,0.5) 0%, rgba(129,140,248,0.3) 50%, transparent 70%); z-index: -10; animation: pulseAura 1.5s infinite alternate; pointer-events: none; filter: blur(10px); }
+    @keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.7; } 100% { transform: scale(1.1); opacity: 1; } }
+  </style>
 </head>
 <body>
 
@@ -341,25 +249,25 @@
 <div class="toast" id="toast"></div>
 <audio id="audioPlayer"></audio>
 
-<!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <div class="lightbox-card" id="lbCard" onclick="event.stopPropagation()">
     <img id="lbImg" src="" alt="">
   </div>
-  <div class="lightbox-close-hint" style="margin-top: 25px;">✕ TAP ANYWHERE TO CLOSE</div>
+  <div class="lightbox-close-hint">✕ TAP ANYWHERE TO CLOSE</div>
 </div>
 
 <div class="reveal-hype-overlay" id="revealHypeOverlay">
   <div class="revealing-label" id="revealLabel">SYSTEM LINK...</div>
   <div class="hype-text-container" id="hypeTextContainer"></div>
 </div>
+
 <div class="container">
   <div class="header">
     <div class="logo">KARD PULL</div>
     <div class="logo-sub">K-pop Photocard Gacha</div>
   </div>
 
-<div class="stats-bar">
+  <div class="stats-bar">
     <div class="stat-pill"><div class="stat-num" id="totalPulls">0</div><div class="stat-label">Total Pulls</div></div>
     <div class="stat-pill"><div class="stat-num" id="ssrCount">0</div><div class="stat-label">SSR Cards</div></div>
     <div class="stat-pill"><div class="stat-num" id="collectionSizeBtnTop">0</div><div class="stat-label">Collection</div></div>
@@ -368,16 +276,6 @@
       <div class="stat-label">Gems 💎</div>
     </div>
   </div>
-  <div style="margin-top: 40px; padding: 20px; background: #1a1a2e; border: 1px dashed #444; border-radius: 12px;">
-  <h3 style="font-family: 'Bebas Neue'; color: #ff4444; margin-bottom: 10px;">🛠 MUSIC DEBUG SYSTEM</h3>
-  <button class="btn-pull btn-single" style="margin-top:10px; background: #6b21a8; display: block; width: 100%;" onclick="runFullAudit()">📊 RUN FULL DATABASE AUDIT</button>
-
-  <input type="text" id="debugArtist" placeholder="Artist (e.g. Jungkook)" style="width: 100%; padding: 8px; margin-bottom: 5px; background: #050508; border: 1px solid #333; color: white;">
-  <input type="text" id="debugAlbum" placeholder="Album (e.g. Golden)" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #050508; border: 1px solid #333; color: white;">
-  <button onclick="testMusic()" style="width: 100%; padding: 10px; background: #444; color: white; border: none; border-radius: 5px; cursor: pointer;">TEST SEARCH</button>
-  
-  <div id="debugLog" style="font-size: 0.7rem; color: #aaa; margin-top: 10px; max-height: 100px; overflow-y: auto; font-family: monospace;"></div>
-</div>
 
   <div class="pity-section">
     <div class="pity-label">SSR Pity</div>
@@ -417,8 +315,6 @@
     </div>
   </div>
 
-  <div class="multi-loading" id="multiLoading">PULLING 3 CARDS...</div>
-  <div class="multi-grid" id="multiGrid"></div>
   <div class="music-player" id="musicPlayer">
     <img class="music-album-art" id="musicArt" src="" alt="">
     <div class="music-info">
@@ -431,36 +327,28 @@
 
   <div class="pull-section">
     <button class="btn-pull btn-single" id="btnPull1" onclick="doSinglePull()">✦ PULL × 1</button>
-    <button class="btn-pull btn-multi" id="btnPull3" onclick="doMultiPull(3)">✦ PULL × 3</button>
+    <button class="btn-pull btn-multi" id="btnPull3" style="display:none;" onclick="doMultiPull(3)">✦ PULL × 3</button>
   </div>
-    <button class="btn-free" id="freeBtn" onclick="doFreePull()">🎁 DAILY FREE PULL — AVAILABLE</button>
+  <button class="btn-free" id="freeBtn" onclick="doFreePull()">🎁 DAILY FREE PULL — AVAILABLE</button>
   
-  <button class="btn-pull btn-single" style="width: 100%; margin-bottom: 10px; border-color: var(--gold); color: var(--gold);" onclick="openMinigame()">🎮 PLAY TO EARN GEMS 💎</button>
-  
-  <button class="btn-pull btn-binder" onclick="openCollection()">✦ OPEN COLLECTION BINDER ✦</button>
+  <button class="btn-pull btn-single" style="border-color: var(--gold); color: var(--gold);" onclick="openMgHub()">🎮 K-POP ARCADE 💎</button>
+  <button class="btn-pull btn-single" onclick="openCollection()" style="margin-top: 10px; width: 100%;">✦ OPEN COLLECTION BINDER ✦</button>
 </div>
-<div class="modal-overlay" id="minigameModal">
+
+<div class="modal-overlay" id="mgOverlay">
   <div class="modal-header">
-    <h2 style="color: var(--accent3);">🎤 WORLD TOUR STAGE 🎤</h2>
-    <button class="modal-close" onclick="closeMinigame()">✕</button>
+    <h2 style="color: var(--accent3);">🎮 K-POP ARCADE</h2>
+    <button class="modal-close" onclick="closeMgOverlay()">✕</button>
   </div>
-  
-  <div id="stageStatus" style="text-align: center; margin-bottom: 15px; color: var(--text); font-family: 'Bebas Neue'; font-size: 1.2rem; letter-spacing: 0.1em;">
-    SELECT 3 CARDS FOR THE LINEUP
-  </div>
-
-  <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
-    <div id="slot0" class="mini-card" style="border: 2px dashed var(--border); background: rgba(255,255,255,0.02); flex: 1; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--border);">+</div>
-    <div id="slot1" class="mini-card" style="border: 2px dashed var(--border); background: rgba(255,255,255,0.02); flex: 1; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--border);">+</div>
-    <div id="slot2" class="mini-card" style="border: 2px dashed var(--border); background: rgba(255,255,255,0.02); flex: 1; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--border);">+</div>
-  </div>
-
-  <div style="color: var(--muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px;">Pick from your collection:</div>
-  <div id="pickContainer" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; height: 200px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 10px;">
+  <div id="mgContent" style="text-align: center;">
+    <div id="mgHub">
+       <p style="color: var(--muted); margin-bottom: 20px;">CHOOSE A GAME TO EARN GEMS</p>
+       <div id="mgGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
     </div>
-
-  <button id="startConcertBtn" class="btn-pull btn-single" style="width: 100%; margin-top: 20px; display: none;" onclick="runConcert()">🚀 START PERFORMANCE</button>
+    <div id="mgGameArea" style="display:none;"></div>
+  </div>
 </div>
+
 <div class="modal-overlay" id="collectionModal">
   <div class="modal-header">
     <h2>✦ YOUR COLLECTION ✦</h2>
@@ -469,7 +357,10 @@
   <div id="modalContent"><div class="error-msg">Pull cards to start!</div></div>
 </div>
 
-<script>
+<script >
+// ── EXTERNAL DATABASE PLACEHOLDER ─────────────────────────────────
+// It is highly recommended to load this from an external file, e.g., <script src="db.js">
+// Here is a tiny placeholder so the script doesn't break if you haven't linked it yet.
 
 const db_BLACKPINK = {
   group: "BLACKPINK",
@@ -2312,293 +2203,324 @@ const db_BABYMONSTER = {
   }
 };
 
+const LYRIC_DB = [
+  { text: "Look at you, now look at me / How you like ____?", answer: "that", options: ["this", "that", "them", "it"] },
+  { text: "I'm super shy, super shy / But wait a minute while I make you ____", answer: "mine", options: ["smile", "shine", "mine", "time"] },
+  { text: "I bring, I bring all the / ____-ma-ma-ma", answer: "Drama", options: ["Karma", "Trauma", "Drama", "Savage"] },
+  { text: "I'm feeling lonely (Lonely) / Oh, I wish I'd find a ____", answer: "lover", options: ["friend", "boy", "partner", "lover"] }
+];
 
-// ── DB setup ──────────────────────────────────────────────────────
-const MASTER_DB = {};
-const _dbVars = { 
-  db_BLACKPINK, 
-  db_Cortis,
-  db_ENHYPEN,
-  db_JayPark, 
-  db_Jennie, 
-  db_Jisoo, 
-  db_Jungkook, 
-  db_Lisa, 
-  db_Lngshot,
-  db_NewJeans,
-  db_Ros,
-  db_TWICE,
-  db_BABYMONSTER
+function startLyricGame() {
+  document.getElementById('mgHub').style.display = 'none';
+  const gameArea = document.getElementById('mgGameArea');
+  gameArea.style.display = 'block';
+
+  // Pick a random lyric
+  const q = LYRIC_DB[Math.floor(Math.random() * LYRIC_DB.length)];
+  
+  // Shuffle the multiple choice options
+  const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+  
+  // Build the UI
+  let html = `<div style="font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--accent1); margin-bottom: 20px; font-style: italic;">"${q.text}"</div>`;
+  html += `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+  
+  shuffledOpts.forEach(opt => {
+    html += `<button class="btn-pull btn-single" onclick="checkLyric('${opt}', '${q.answer}')">${opt.toUpperCase()}</button>`;
+  });
+  
+  gameArea.innerHTML = html;
+}
+
+function checkLyric(selected, correct) {
+  if (selected === correct) {
+    state.gems += 50; // Reward!
+    showToast("✅ CORRECT! +50 GEMS 💎");
+    updateUI();
+    saveState();
+  } else {
+    showToast("❌ WRONG! The correct word was " + correct.toUpperCase());
+  }
+  
+  // Reset back to the arcade hub after answering
+  setTimeout(() => {
+    document.getElementById('mgGameArea').style.display = 'none';
+    document.getElementById('mgHub').style.display = 'block';
+  }, 1000);
+}
+function startMissingGame() {
+  document.getElementById('mgHub').style.display = 'none';
+  const gameArea = document.getElementById('mgGameArea');
+  gameArea.style.display = 'block';
+
+  // Get a random card (force it to NOT be a group photo)
+  let card = null;
+  while (!card || card.isGroupCard || card.member === "ALL MEMBERS") {
+    card = getCardFromDatabase(false);
+  }
+
+  // Get 3 random WRONG members for the multiple choice
+  const allMembers = new Set();
+  Object.keys(MASTER_DB).forEach(g => {
+    Object.keys(MASTER_DB[g].albums).forEach(a => {
+      Object.keys(MASTER_DB[g].albums[a]).forEach(m => {
+        if (m !== "ALL MEMBERS" && m !== card.member) allMembers.add(m);
+      });
+    });
+  });
+  
+  const wrongAnswers = Array.from(allMembers).sort(() => 0.5 - Math.random()).slice(0, 3);
+  const options = [...wrongAnswers, card.member].sort(() => 0.5 - Math.random());
+
+  // Changed filter from brightness(0) to blur(15px)
+  let html = `
+    <div style="margin-bottom: 20px; position: relative; overflow: hidden; width: 160px; height: 230px; margin: 0 auto 20px; border-radius: 12px; border: 1px solid var(--border);">
+      <img id="silhouetteImg" src="${card.image}" style="width: 100%; height: 100%; object-fit: cover; filter: blur(6px) saturate(1.5); transform: scale(1.1); transition: all 0.5s ease;">
+    </div>
+    <div style="color: var(--accent1); font-family: 'Bebas Neue'; font-size: 1.5rem; letter-spacing: 0.1em; margin-bottom: 15px;">WHO IS THIS?</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+  `;
+  
+  options.forEach(opt => {
+    html += `<button class="btn-pull btn-single" onclick="checkMissing('${opt}', '${card.member}')">${opt.toUpperCase()}</button>`;
+  });
+  html += `</div>`;
+  
+  gameArea.innerHTML = html;
+}
+
+function checkMissing(selected, correct) {
+  // Reveal the image! (Remove the blur)
+  const img = document.getElementById('silhouetteImg');
+  img.style.filter = 'blur(0px) saturate(1)';
+  img.style.transform = 'scale(1)';
+  
+  if (selected === correct) {
+    state.gems += 50;
+    showToast("✅ CORRECT! +50 GEMS 💎");
+    updateUI(); saveState();
+  } else {
+    showToast("❌ WRONG! It was " + correct.toUpperCase());
+  }
+  
+  // Wait a little longer so the player can actually see the revealed card
+  setTimeout(() => {
+    document.getElementById('mgGameArea').style.display = 'none';
+    document.getElementById('mgHub').style.display = 'block';
+  }, 2000);
+}
+async function startBiasGame() {
+  document.getElementById('mgHub').style.display = 'none';
+  const gameArea = document.getElementById('mgGameArea');
+  gameArea.style.display = 'block';
+  gameArea.innerHTML = `<div class="multi-loading visible" style="display:flex;">TUNING IN... 🎵</div>`;
+
+  let track = null;
+  let targetGroup = "";
+  const groups = Object.keys(MASTER_DB);
+  let attempts = 0;
+
+  // Try to fetch a working audio track (up to 5 times)
+  while (!track && attempts < 5) {
+    targetGroup = groups[Math.floor(Math.random() * groups.length)];
+    const albums = Object.keys(MASTER_DB[targetGroup].albums);
+    const randomAlbum = albums[Math.floor(Math.random() * albums.length)];
+    track = await fetchiTunes(targetGroup, randomAlbum);
+    attempts++;
+  }
+
+  if (!track || !track.previewUrl) {
+    showToast("❌ Could not load audio stream. Try again.");
+    document.getElementById('mgGameArea').style.display = 'none';
+    document.getElementById('mgHub').style.display = 'block';
+    return;
+  }
+
+  // Play audio invisibly
+  const audio = document.getElementById('audioPlayer');
+  audio.src = track.previewUrl;
+  audio.volume = 1;
+  audio.play().catch(() => {});
+
+  // Generate wrong options
+  const allGroups = new Set(groups);
+  allGroups.delete(targetGroup);
+  const wrongAnswers = Array.from(allGroups).sort(() => 0.5 - Math.random()).slice(0, 3);
+  const options = [...wrongAnswers, targetGroup].sort(() => 0.5 - Math.random());
+
+  // Escape single quotes for HTML
+  const safeTrackName = track.trackName.replace(/'/g, "\\'");
+
+  let html = `
+    <div style="font-size: 3rem; margin-bottom: 10px; animation: pulse 1s infinite;">🎵</div>
+    <div style="margin-bottom: 20px; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.1em;">GUESS THE ARTIST!</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+  `;
+  options.forEach(opt => {
+    html += `<button class="btn-pull btn-single" onclick="checkBias('${opt}', '${targetGroup}', '${safeTrackName}')">${opt.toUpperCase()}</button>`;
+  });
+  html += `</div>`;
+  
+  gameArea.innerHTML = html;
+}
+
+function checkBias(selected, correct, trackName) {
+  const audio = document.getElementById('audioPlayer');
+  audio.pause(); // Stop the music
+  
+  if (selected === correct) {
+    state.gems += 50;
+    showToast(`✅ CORRECT! (+50 💎) Song: ${trackName}`);
+    updateUI(); saveState();
+  } else {
+    showToast(`❌ WRONG! It was ${correct.toUpperCase()} - ${trackName}`);
+  }
+  
+  setTimeout(() => {
+    document.getElementById('mgGameArea').style.display = 'none';
+    document.getElementById('mgHub').style.display = 'block';
+  }, 2500);
+}
+// 1. Declare MASTER_DB FIRST
+const MASTER_DB = window.MASTER_DB || {};
+
+// 2. Gather your databases
+const _dbVars = {
+  db_BLACKPINK, db_Cortis, db_ENHYPEN, db_JayPark, db_Jennie,
+  db_Jisoo, db_Jungkook, db_Lisa, db_Lngshot, db_NewJeans,
+  db_Ros, db_TWICE, db_BABYMONSTER
 };
+
+// 3. Loop through and add them to MASTER_DB
 for (const key of Object.keys(_dbVars)) {
   const db = _dbVars[key];
   if (db && db.group) MASTER_DB[db.group] = db;
 }
+
+// 4. Check if it worked
 const hasDatabase = Object.keys(MASTER_DB).length > 0;
 
-// ── State & Economy ────────────────────────────────────────────────
-// ── State & Economy ────────────────────────────────────────────────
-let state = { 
+// ── State ─────────────────────────────────────────────────────────
+let state = {
   totalPulls: 0, ssrCount: 0, pityCount: 0, gems: 1000,
   collection: [], freePullUsed: false, freePullDate: null,
   isPlaying: false, audioProgress: null
 };
+let currentCard = null;
 
 try {
   const saved = localStorage.getItem('kardpull');
   if (saved) {
     Object.assign(state, JSON.parse(saved));
-    if (state.freePullDate !== new Date().toDateString()) { state.freePullUsed = false; state.freePullDate = new Date().toDateString(); }
+    if (state.freePullDate !== new Date().toDateString()) {
+      state.freePullUsed = false;
+      state.freePullDate = new Date().toDateString();
+    }
   }
 } catch(e) {}
 
 function saveState() { localStorage.setItem('kardpull', JSON.stringify(state)); }
-// ── MINIGAME HUB LOGIC ─────────────────────────────────────────────
-// This fixes the "openMinigame is not defined" error
-function openMinigame() { openMgHub(); } 
 
-function openMgHub() {
-  document.getElementById('mgOverlay').classList.add('visible');
-  document.getElementById('mgGemsDisplay').textContent = state.gems;
-  renderMgGrid();
-}
-
-function closeMgOverlay() {
-  document.getElementById('mgOverlay').classList.remove('visible');
-  stopAllAudio();
-}
-
-function renderMgGrid() {
-  const grid = document.getElementById('mgGrid');
-  grid.innerHTML = '';
-  const games = [
-    { id:'bias', icon:'🎵', name:'Bias Guesser' },
-    { id:'lyric', icon:'📝', name:'Lyric Fill' },
-    { id:'missing', icon:'❓', name:'Who is it?' },
-    { id:'lightstick', icon:'🪅', name:'Lightstick' },
-    { id:'sasaeng', icon:'🏃', name:'Escape' }
-  ];
-  games.forEach(g => {
-    const div = document.createElement('div');
-    div.className = 'mg-card';
-    div.innerHTML = `<div class="mg-card-icon">${g.icon}</div><div class="mg-card-info"><div class="mg-card-name">${g.name}</div></div>`;
-    div.onclick = () => launchGame(g.id);
-    grid.appendChild(div);
-  });
-}
-
-function launchGame(id) {
-  // Hide Hub, show specific game screen
-  document.getElementById('mgHub').style.display = 'none';
-  document.querySelectorAll('.mg-game-screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(`screen-${id}`).classList.add('active');
-}
-
-function backToHub() {
-  document.getElementById('mgHub').style.display = 'flex';
-  document.querySelectorAll('.mg-game-screen').forEach(s => s.classList.remove('active'));
-  stopAllAudio();
-}// ── STOPS THE "el is null" CRASH ───────────────────────────────────
-// This function bridges the old text call to the new slam system
-async function scrambleAndShowBigText(label, text, dur) {
-  const container = document.getElementById('hypeTextContainer');
-  if (!container) return; // Safety check
-  return await slamText(label, text, 'N'); 
-}
-
-// ✦ SECRET CHEAT CODE ✦ Tap Gem counter 5 times fast
-let tapCount = 0;
-let tapTimer;
+// ── Cheat Code (tap Gems 5×) ──────────────────────────────────────
+let tapCount = 0, tapTimer;
 function secretCheatCode() {
   tapCount++;
   clearTimeout(tapTimer);
-  tapTimer = setTimeout(() => tapCount = 0, 800); 
+  tapTimer = setTimeout(() => tapCount = 0, 800);
   if (tapCount >= 5) {
     state.gems += 3000;
     showToast('💎 SYSTEM OVERRIDE: +3000 GEMS ADDED 💎');
-    updateUI();
-    saveState();
-    tapCount = 0;
+    updateUI(); saveState(); tapCount = 0;
     document.body.classList.add('bg-flash-strike');
     setTimeout(() => document.body.classList.remove('bg-flash-strike'), 200);
   }
 }
 
-const POSITIONS = ["Main Vocalist","Lead Vocalist","Main Dancer","Lead Dancer","Main Rapper","Lead Rapper","Visual","Center","Maknae","Leader"];
-async function runFullAudit() {
-  const logBox = document.getElementById('debugLog');
-  if (!logBox) return;
-  
-  logBox.style.maxHeight = "400px"; // Make it bigger so you can actually see the results
-  logBox.innerHTML = `<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🚀 STARTING FULL DATABASE AUDIT...</div>`;
-  
-  // 1. Gather all unique Artist + Album pairs from your database
-  let auditList = [];
-  for (const groupKey in MASTER_DB) {
-    const groupData = MASTER_DB[groupKey];
-    for (const albumKey in groupData.albums) {
-      auditList.push({ artist: groupData.group, album: albumKey });
-    }
-  }
+// ── Card Database Logic ───────────────────────────────────────────
+const POSITIONS = [
+  "Main Vocalist","Lead Vocalist","Main Dancer","Lead Dancer",
+  "Main Rapper","Lead Rapper","Visual","Center","Maknae","Leader"
+];
 
-  let successCount = 0;
-  const total = auditList.length;
-  
-  // Create a status tracker at the top
-  const statusHeader = document.createElement('div');
-  logBox.appendChild(statusHeader);
-
-  for (let i = 0; i < total; i++) {
-    const item = auditList[i];
-    statusHeader.innerHTML = `<div style="color:#c084fc; margin-bottom:10px; border-bottom:1px solid #444; padding-bottom:5px;">Testing ${i + 1}/${total}: <b>${item.artist} - ${item.album}</b></div>`;
-
-    // Run the fetch
-    const result = await fetchiTunes(item.artist, item.album, false);
-
-    const statusRow = document.createElement('div');
-    statusRow.style.fontSize = "0.7rem";
-    statusRow.style.padding = "3px 0";
-    statusRow.style.borderBottom = "1px solid #222";
-
-    if (result) {
-      successCount++;
-      statusRow.innerHTML = `<span style="color:#34d399">✅ [PASS]</span> ${item.artist} - ${item.album}`;
-    } else {
-      statusRow.innerHTML = `<span style="color:#ff4444">❌ [FAIL]</span> ${item.artist} - ${item.album}`;
-    }
-
-    logBox.appendChild(statusRow);
-    logBox.scrollTop = logBox.scrollHeight;
-    
-    // 300ms delay to prevent Apple from IP-banning you for spamming requests
-    await new Promise(r => setTimeout(r, 300)); 
-  }
-
-  const summary = document.createElement('div');
-  summary.style.background = "#fbbf24";
-  summary.style.color = "#000";
-  summary.style.padding = "10px";
-  summary.style.fontWeight = "bold";
-  summary.style.marginTop = "10px";
-  summary.innerHTML = `📊 AUDIT COMPLETE: ${successCount}/${total} CARDS WORKING`;
-  logBox.prepend(summary);
-}
-// ── Card logic (ANTI-DUPE SYSTEM) ─────────────────────────────────
 function getCardFromDatabase(isPitySSR) {
   if (!hasDatabase) return null;
   const groups = Object.keys(MASTER_DB);
   const dbData = MASTER_DB[groups[Math.floor(Math.random() * groups.length)]];
   let allCards = [];
   
-  for (const [albumName, members] of Object.entries(dbData.albums))
-    for (const [memberName, cards] of Object.entries(members))
-      cards.forEach(c => allCards.push({ group: dbData.group, album: albumName, member: memberName, url: c.url, rarity: c.rarity, isGroupCard: memberName === "ALL MEMBERS" }));
-  
+  for (const [albumName, members] of Object.entries(dbData.albums)) {
+    for (const [memberName, cards] of Object.entries(members)) {
+      cards.forEach(c => allCards.push({
+        group: dbData.group, album: albumName, member: memberName,
+        url: c.url, rarity: c.rarity, isGroupCard: memberName === "ALL MEMBERS"
+      }));
+    }
+  }
   if (!allCards.length) return null;
 
-  // ✦ THIS IS THE CORE OF THE SYSTEM ✦
-  // It looks at your current state.collection and filters out anything that matches a URL you own.
-  let availableCards = allCards.filter(dbCard => 
-    !state.collection.some(owned => owned.image === dbCard.url)
-  );
-  
-  // Safety reset: If you have everything, let duplicates happen so the game doesn't crash.
-  if (availableCards.length === 0) availableCards = allCards; 
+  // Anti-dupe: prefer cards not yet owned
+  let available = allCards.filter(c => !state.collection.some(o => o.image === c.url));
+  if (!available.length) available = allCards;
 
   let targetRarity = 'N';
-  if (isPitySSR) { targetRarity = 'SSR'; }
-  else { 
-    const r = Math.random(); 
-    if (r < 0.05) targetRarity = 'SSR'; 
-    else if (r < 0.20) targetRarity = 'SR'; 
-    else if (r < 0.50) targetRarity = 'R'; 
+  if (isPitySSR) {
+    targetRarity = 'SSR';
+  } else {
+    const r = Math.random();
+    if (r < 0.05) targetRarity = 'SSR';
+    else if (r < 0.20) targetRarity = 'SR';
+    else if (r < 0.50) targetRarity = 'R';
   }
 
-  let matching = availableCards.filter(c => c.rarity === targetRarity);
-  if (!matching.length) matching = availableCards;
-
+  let matching = available.filter(c => c.rarity === targetRarity);
+  if (!matching.length) matching = available;
   const picked = matching[Math.floor(Math.random() * matching.length)];
   const versions = ['VER. A','VER. B','VER. C','WEVERSE VER.','LP VER.'];
-  
+
   return {
-    group: picked.group, member: picked.member, albumName: picked.album, image: picked.url,
-    rarity: picked.rarity, // Use the card's real rarity from the DB
+    group: picked.group, member: picked.member, albumName: picked.album,
+    image: picked.url, rarity: picked.rarity,
     position: picked.isGroupCard ? "Group Photo" : POSITIONS[Math.floor(Math.random() * POSITIONS.length)],
     version: picked.isGroupCard ? "GROUP VER." : versions[Math.floor(Math.random() * versions.length)],
     isGroupCard: picked.isGroupCard
   };
 }
-function rarityStars(r) { return { SSR:'⭐⭐⭐⭐', SR:'⭐⭐⭐', R:'⭐⭐', N:'⭐' }[r] || '⭐'; }
-// Special mapping for artists with common names or special characters
-const ARTIST_FIXES = {
-  "Rosé": "Rose", 
-  "Jungkook": "Jungkook", // Adding BTS helps iTunes find the right soloist
-  "Jennie": "Jennie"
-};
-// === 1. LIVE VISUAL DEBUGGER ===
-async function testMusic() {
-  const artist = document.getElementById('debugArtist').value;
-  const album = document.getElementById('debugAlbum').value;
-  const log = document.getElementById('debugLog');
-  
-  log.innerHTML = `🔍 Searching iTunes for: "${artist}"...`;
-  const music = await fetchiTunes(artist, album);
-  
-  if (music) {
-    log.innerHTML = `<span style="color:#00ff00">✅ SUCCESS</span><br>Track: ${music.trackName}<br>Artist: ${artist}`;
-    renderMusic(music, artist);
-  } else {
-    log.innerHTML = `<span style="color:#ff4444">❌ FAILED</span><br>iTunes couldn't match "${artist}". Try adding "BTS" or "BLACKPINK" after the name.`;
-  }
+
+function rarityStars(r) {
+  return { SSR:'⭐⭐⭐⭐', SR:'⭐⭐⭐', R:'⭐⭐', N:'⭐' }[r] || '⭐';
 }
-// ── STRICT ALBUM MUSIC MATCHING ───────────────────────────────────
-// ── STRICT ALBUM MUSIC MATCHING (RESTORED VER.) ───────────────────────────────────
+
+// ── iTunes Music ──────────────────────────────────────────────────
 async function fetchiTunes(groupName, albumName) {
-  const normalize = (s) => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
+  const normalize = s => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
   let dbArtist = normalize(groupName);
   if (dbArtist === "jungkook") dbArtist = "jung kook";
   const dbAlbum = normalize(albumName).replace(/- single|- ep/gi, '').trim();
 
-  // 1. THE SUCCESS MAP (Fixes all your ❌ FAIL cards)
   const ALBUM_IDS = {
     "mcnasty": "1754312507",
-"golden": "1709554767",
-    "strategy": "1774299753"   // Twice Strategy official ID
+    "golden": "1709554767",
+    "strategy": "1774299753"
   };
 
   try {
     const directId = ALBUM_IDS[dbAlbum];
-    let url;
-
-    if (directId) {
-      // Use the Direct ID for 100% reliability on problem cards
-      url = `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes`;
-    } else {
-      // Standard search for everything else
-      const searchTerm = `${groupName} ${albumName}`;
-      url = `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=100&explicit=Yes`;
-    }
+    const url = directId
+      ? `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes`
+      : `https://itunes.apple.com/search?term=${encodeURIComponent(groupName + " " + albumName)}&media=music&entity=song&limit=100&explicit=Yes`;
 
     const res = await fetch(url);
-    if (res.status === 403) return null; // Rate limit protection
+    if (res.status === 403) return null;
     const data = await res.json();
 
+    const blacklist = ["intro","outro","interlude","skit","instrumental","speech","voice","karaoke"];
     const validTracks = (data.results || []).filter(t => {
       if (t.kind !== 'song' || t.wrapperType !== 'track') return false;
-
       const itunesArtist = normalize(t.artistName);
       const itunesTrack = normalize(t.trackName || "");
-
-      // STRICT ARTIST CHECK (Kills Zenya Rose and other fakes)
       const artistList = itunesArtist.split(/&|,|feat\.| x | with /).map(a => a.trim());
-      const isExactArtist = artistList.includes(dbArtist) || itunesArtist === dbArtist;
-      if (!isExactArtist) return false;
-
-      // BLACKLIST (No intros, voice notes, or instrumentals)
-      const blacklist = ["intro", "outro", "interlude", "skit", "instrumental", "speech", "voice", "karaoke"];
-      if (blacklist.some(b => itunesTrack.includes(b))) return false;
-
-      return true;
+      if (!artistList.includes(dbArtist) && itunesArtist !== dbArtist) return false;
+      return !blacklist.some(b => itunesTrack.includes(b));
     });
 
     if (validTracks.length > 0) {
@@ -2610,250 +2532,138 @@ async function fetchiTunes(groupName, albumName) {
       };
     }
     return null;
-  } catch (e) { return null; }
+  } catch(e) { return null; }
 }
 
-async function runFullAudit() {
-  const logBox = document.getElementById('debugLog');
-  logBox.style.maxHeight = "600px";
-  logBox.innerHTML = `<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🚀 STARTING DEEP MULTI-SONG AUDIT...</div>`;
-  
-  let auditList = [];
-  let songsFoundList = [];
-
-  for (const groupKey in MASTER_DB) {
-    const groupData = MASTER_DB[groupKey];
-    for (const albumKey in groupData.albums) {
-      auditList.push({ artist: groupData.group, album: albumKey });
-    }
-  }
-
-  const statusHeader = document.createElement('div');
-  statusHeader.style.marginBottom = "15px";
-  statusHeader.style.padding = "10px";
-  statusHeader.style.background = "#222";
-  logBox.appendChild(statusHeader);
-
-  for (let i = 0; i < auditList.length; i++) {
-    const item = auditList[i];
-    statusHeader.innerHTML = `Scanning Album ${i + 1}/${auditList.length}: <b style="color:#c084fc">${item.artist} - ${item.album}</b>`;
-
-    // 1. Fetch ALL valid results instead of just one random pick
-    const allResultsForAlbum = await fetchAllTracksForAudit(item.artist, item.album);
-
-    const cardResult = document.createElement('div');
-    cardResult.style.padding = "10px";
-    cardResult.style.borderBottom = "1px solid #333";
-    cardResult.style.background = allResultsForAlbum.length > 0 ? "rgba(52, 211, 153, 0.05)" : "rgba(239, 68, 68, 0.05)";
-
-    if (allResultsForAlbum.length > 0) {
-      const trackNames = allResultsForAlbum.map(t => t.trackName);
-      songsFoundList.push(`✅ [${item.artist}] ${item.album} (${trackNames.length} songs) -> [${trackNames.join(', ')}]`);
-      
-      cardResult.innerHTML = `
-        <div style="color:#34d399; font-weight:bold; font-size:0.8rem; margin-bottom:5px;">✅ ${item.artist} - ${item.album}</div>
-        <div style="color:#aaa; font-size:0.7rem; padding-left:10px; border-left: 2px solid #34d399;">
-            ${trackNames.map(name => `• ${name}`).join('<br>')}
-        </div>
-      `;
-    } else {
-      songsFoundList.push(`❌ [${item.artist}] ${item.album} -> FAILED`);
-      cardResult.innerHTML = `<div style="color:#ff4444; font-weight:bold; font-size:0.8rem;">❌ ${item.artist} - ${item.album}: NO TRACKS FOUND</div>`;
-    }
-
-    logBox.appendChild(cardResult);
-    logBox.scrollTop = logBox.scrollHeight;
-
-    // Safety Delay
-    await new Promise(r => setTimeout(r, 2500));
-  }
-  
-  // FINAL SUMMARY AREA
-  const finalSummaryDiv = document.createElement('div');
-  finalSummaryDiv.style.marginTop = "30px";
-  finalSummaryDiv.innerHTML = `<h3 style="color:#34d399; margin-bottom:10px; font-family:'Bebas Neue';">📋 MASTER LIST (ALL TRACKS PER ALBUM)</h3>
-    <textarea style="width:100%; height:300px; background:#000; color:#34d399; font-family:monospace; font-size:0.7rem; padding:10px; border:1px solid #333;">${songsFoundList.join('\n')}</textarea>`;
-  
-  logBox.appendChild(finalSummaryDiv);
-  statusHeader.innerHTML = `<b style="color:#fbbf24">🎉 AUDIT COMPLETE. Verified multiple tracks per album!</b>`;
-}
-
-// Helper function that returns the WHOLE list of valid songs for the audit to display
-async function fetchAllTracksForAudit(groupName, albumName) {
-  const normalize = (s) => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
-  const cleanSym = (s) => s.replace(/[^a-z0-9]/g, "");
-
-  const dbArtist = normalize(groupName);
-  const dbAlbum = normalize(albumName).replace(/- single|- ep/gi, '').trim();
-  const targetClean = cleanSym(dbAlbum);
-
-  const ALBUM_IDS = {"mcnasty": "1754312507",
-    "strategy": "1774299753", "golden": "1709554767"  };
-
-  try {
-    const directId = ALBUM_IDS[dbAlbum];
-    const url = directId 
-      ? `https://itunes.apple.com/lookup?id=${directId}&entity=song&limit=50&explicit=Yes`
-      : `https://itunes.apple.com/search?term=${encodeURIComponent(groupName + " " + albumName)}&media=music&entity=song&limit=100&explicit=Yes`;
-
-    const res = await fetch(url);
-    if (res.status === 403) return [];
-    const data = await res.json();
-
-    return (data.results || []).filter(t => {
-      if (t.wrapperType !== 'track') return false;
-      const apiArtist = normalize(t.artistName);
-      const apiAlbum = normalize(t.collectionName || "").replace(/- single|- ep/gi, '').trim();
-      const apiTrack = normalize(t.trackName || "");
-
-      const artistMatch = apiArtist.includes(dbArtist) || dbArtist.includes(apiArtist);
-      const albumMatch = cleanSym(apiAlbum).includes(targetClean) || cleanSym(apiTrack).includes(targetClean);
-      const blacklist = ["intro", "outro", "interlude", "skit", "instrumental", "karaoke"];
-      const isBlacklisted = blacklist.some(b => apiTrack.includes(b));
-
-      return artistMatch && albumMatch && !isBlacklisted;
-    });
-  } catch (e) { return []; }
-}
-// === 3. EXPLICIT AUDIO FIX ===
 function renderMusic(music, groupName) {
   const audio = document.getElementById('audioPlayer');
   audio.pause(); audio.removeAttribute('src'); audio.load();
   clearInterval(state.audioProgress); state.isPlaying = false;
-  
   document.getElementById('musicProgressFill').style.width = '0%';
   const btn = document.getElementById('musicBtn');
-  btn.textContent = '▶';
-  btn.style.opacity = '1';
+  btn.textContent = '▶'; btn.style.opacity = '1';
   document.getElementById('musicPlayer').classList.add('visible');
   document.getElementById('musicTrack').textContent = music.trackName || 'Unknown Track';
   document.getElementById('musicArtist').textContent = groupName;
   document.getElementById('musicArt').src = music.albumArt || '';
   document.getElementById('musicArt').style.display = music.albumArt ? 'block' : 'none';
-  
-  if (music.previewUrl) {
-    audio.src = music.previewUrl;
-    audio.volume = 0; 
-    setTimeout(() => {
-      audio.play().then(() => {
-        state.isPlaying = true; 
-        btn.textContent = '⏸';
-        let fadeInterval = setInterval(() => {
-          if (audio.volume < 0.95) audio.volume += 0.05;
-          else { audio.volume = 1; clearInterval(fadeInterval); }
-        }, 50);
-        state.audioProgress = setInterval(() => {
-          if (audio.duration) {
-            document.getElementById('musicProgressFill').style.width = ((audio.currentTime / audio.duration) * 100) + '%';
-            if (audio.ended) { state.isPlaying = false; btn.textContent = '▶'; clearInterval(state.audioProgress); }
-          }
-        }, 500);
-      }).catch(() => { btn.textContent = '▶'; });
-    }, 100);
-  } else {
-    // THIS FIXES MCNASTY: The UI updates, but warns you Apple removed the audio
-    showToast("🔇 Audio restricted by Apple (Explicit Track)");
-    btn.style.opacity = '0.4';
-  }
-}
-// ── MUSIC FADE-IN ─────────────────────────────────────────────────
-function renderMusic(music, groupName) {
-  const audio = document.getElementById('audioPlayer');
-  audio.pause(); audio.removeAttribute('src'); audio.load();
-  clearInterval(state.audioProgress); state.isPlaying = false;
-  
-  document.getElementById('musicProgressFill').style.width = '0%';
-  document.getElementById('musicBtn').textContent = '▶';
-  document.getElementById('musicPlayer').classList.add('visible');
-  document.getElementById('musicTrack').textContent = music.trackName || 'Unknown Track';
-  document.getElementById('musicArtist').textContent = groupName;
-  document.getElementById('musicArt').src = music.albumArt || '';
-  document.getElementById('musicArt').style.display = music.albumArt ? 'block' : 'none';
-  
-  if (music.previewUrl) {
-    audio.src = music.previewUrl;
-    audio.volume = 0; 
-    
-    setTimeout(() => {
-      audio.play().then(() => {
-        state.isPlaying = true; 
-        document.getElementById('musicBtn').textContent = '⏸';
-        
-        let fadeInterval = setInterval(() => {
-          if (audio.volume < 0.95) audio.volume += 0.05;
-          else { audio.volume = 1; clearInterval(fadeInterval); }
-        }, 50);
 
+  if (music.previewUrl) {
+    audio.src = music.previewUrl;
+    audio.volume = 0;
+    setTimeout(() => {
+      audio.play().then(() => {
+        state.isPlaying = true; btn.textContent = '⏸';
+        let fade = setInterval(() => {
+          if (audio.volume < 0.95) audio.volume += 0.05;
+          else { audio.volume = 1; clearInterval(fade); }
+        }, 50);
         state.audioProgress = setInterval(() => {
           if (audio.duration) {
-            document.getElementById('musicProgressFill').style.width = ((audio.currentTime / audio.duration) * 100) + '%';
-            if (audio.ended) { state.isPlaying = false; document.getElementById('musicBtn').textContent = '▶'; clearInterval(state.audioProgress); }
+            document.getElementById('musicProgressFill').style.width =
+              ((audio.currentTime / audio.duration) * 100) + '%';
+            if (audio.ended) {
+              state.isPlaying = false;
+              btn.textContent = '▶';
+              clearInterval(state.audioProgress);
+            }
           }
         }, 500);
       }).catch(() => {});
     }, 100);
+  } else {
+    showToast("🔇 Audio restricted by Apple (Explicit Track)");
+    btn.style.opacity = '0.4';
   }
 }
+
 function toggleMusic() {
   const audio = document.getElementById('audioPlayer');
-  if (state.isPlaying) { audio.pause(); state.isPlaying = false; document.getElementById('musicBtn').textContent = '▶'; }
-  else { audio.play().then(() => { state.isPlaying = true; document.getElementById('musicBtn').textContent = '⏸'; }).catch(() => {}); }
+  if (state.isPlaying) {
+    audio.pause(); state.isPlaying = false;
+    document.getElementById('musicBtn').textContent = '▶';
+  } else {
+    audio.play().then(() => {
+      state.isPlaying = true;
+      document.getElementById('musicBtn').textContent = '⏸';
+    }).catch(() => {});
+  }
 }
 
 // ── Lightbox ──────────────────────────────────────────────────────
-// ── Lightbox ──────────────────────────────────────────────────────
 function openLightbox(card) {
   if (!card) return;
-  const lb = document.getElementById('lightbox');
-  const lbCard = document.getElementById('lbCard');
-  
-  // Only set the image! No text.
   document.getElementById('lbImg').src = card.image;
-  
-  // Keep the glowing border based on rarity
-  lbCard.className = `lightbox-card lb-${card.rarity.toLowerCase()}`;
-  lb.classList.add('visible');
+  document.getElementById('lbCard').className = `lightbox-card lb-${card.rarity.toLowerCase()}`;
+  document.getElementById('lightbox').classList.add('visible');
   document.body.style.overflow = 'hidden';
 }
-function closeLightbox(e) {
+function closeLightbox() {
   document.getElementById('lightbox').classList.remove('visible');
   document.body.style.overflow = '';
 }
 function openLightboxFromCard() {
-  const inner = document.getElementById('cardInner');
-  if (inner.classList.contains('flipped') && currentCard) openLightbox(currentCard);
+  if (document.getElementById('cardInner').classList.contains('flipped') && currentCard)
+    openLightbox(currentCard);
 }
-function openLightboxFromData(imgSrc, group, member, albumName, rarity, position, version) {
-  // We accept all the data to avoid breaking the collection binder, but we only use the image and rarity!
+function openLightboxFromData(imgSrc, group, member, albumName, rarity) {
   openLightbox({ image: imgSrc, rarity: rarity || 'N' });
 }
 
-// ── Utilities ─────────────────────────────────────────────────────
-function disableButtons(d) { document.querySelectorAll('.btn-pull').forEach(b => d ? b.classList.add('btn-disabled') : b.classList.remove('btn-disabled')); }
+// ── UI Utilities ──────────────────────────────────────────────────
+function updateUI() {
+  document.getElementById('totalPulls').textContent = state.totalPulls;
+  document.getElementById('ssrCount').textContent = state.ssrCount;
+  document.getElementById('collectionSizeBtnTop').textContent = state.collection.length;
+  document.getElementById('pityBar').style.width = ((state.pityCount / 50) * 100) + '%';
+  document.getElementById('pityCount').textContent = `${state.pityCount} / 50`;
+  const gem = document.getElementById('gemCount');
+  if (gem) gem.textContent = state.gems;
+  if (state.freePullUsed) {
+    const b = document.getElementById('freeBtn');
+    if (b) { b.disabled = true; b.textContent = '🎁 FREE PULL USED — COME BACK TOMORROW'; }
+  }
+}
+
+function disableButtons(d) {
+  document.querySelectorAll('.btn-pull').forEach(b =>
+    d ? b.classList.add('btn-disabled') : b.classList.remove('btn-disabled')
+  );
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
 function unlockAudioContext() {
   const a = document.getElementById('audioPlayer');
   a.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
   a.play().catch(() => {});
 }
-function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
-function spawnParticles(c, colors) {
-  const pC = document.getElementById('particlesContainer'), cx = window.innerWidth/2, cy = window.innerHeight/2;
-  for (let i = 0; i < c; i++) setTimeout(() => {
+
+function spawnParticles(count, colors) {
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  const pC = document.getElementById('particlesContainer');
+  for (let i = 0; i < count; i++) setTimeout(() => {
     const p = document.createElement('div'); p.className = 'particle';
-    const a = Math.random()*Math.PI*2, d = 100+Math.random()*200;
-    p.style.left = cx+'px'; p.style.top = cy+'px';
-    p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.setProperty('--tx', Math.cos(a)*d+'px'); p.style.setProperty('--ty', Math.sin(a)*d+'px');
-    p.style.width = (4+Math.random()*6)+'px'; p.style.height = p.style.width;
-    document.getElementById('particlesContainer').appendChild(p); setTimeout(() => p.remove(), 1300);
-  }, i*20);
+    const a = Math.random() * Math.PI * 2, d = 100 + Math.random() * 200;
+    p.style.left = cx + 'px'; p.style.top = cy + 'px';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.setProperty('--tx', Math.cos(a) * d + 'px');
+    p.style.setProperty('--ty', Math.sin(a) * d + 'px');
+    const sz = (4 + Math.random() * 6) + 'px';
+    p.style.width = sz; p.style.height = sz;
+    pC.appendChild(p); setTimeout(() => p.remove(), 1300);
+  }, i * 20);
 }
 
-// ── Animations ────────────────────────────────────────────────────
+// ── Rarity Effects ─────────────────────────────────────────────────
 function triggerRarityEffect(r) {
   const wrapper = document.getElementById('cardWrapper');
-  const stage = document.getElementById('cardStage');
-  
+  const stage   = document.getElementById('cardStage');
+
   if (r === 'SSR' || r === 'SR') {
     const wave = document.createElement('div');
     wave.className = `shockwave wave-${r.toLowerCase()}`;
@@ -2861,85 +2671,82 @@ function triggerRarityEffect(r) {
     setTimeout(() => wave.remove(), 1000);
   }
 
-  if (r === 'SSR') { 
-    wrapper.classList.add('aura-ssr'); 
-    spawnParticles(150, ['#fbbf24','#f472b6','#c084fc','#67e8f9','#ffffff']); 
-    showToast('✨ SSR PULL! LEGENDARY CARD!'); 
-  }
-  else if (r === 'SR') { 
-    wrapper.classList.add('aura-sr'); 
-    spawnParticles(70, ['#c084fc','#818cf8','#ffffff']); 
-    showToast('💜 SR PULL! RARE CARD!'); 
-  }
-  else if (r === 'R') { 
-    spawnParticles(25, ['#34d399','#06b6d4']); 
+  if (r === 'SSR') {
+    wrapper.classList.add('aura-ssr');
+    spawnParticles(150, ['#fbbf24','#f472b6','#c084fc','#67e8f9','#ffffff']);
+    showToast('✨ SSR PULL! LEGENDARY CARD!');
+  } else if (r === 'SR') {
+    wrapper.classList.add('aura-sr');
+    spawnParticles(70, ['#c084fc','#818cf8','#ffffff']);
+    showToast('💜 SR PULL! RARE CARD!');
+  } else if (r === 'R') {
+    spawnParticles(25, ['#34d399','#06b6d4']);
   }
 }
 
-function triggerScreenShake(rarity) {
-  const body = document.body;
-  body.classList.remove('shake-extreme', 'shake-heavy', 'shake-light');
-  void body.offsetWidth; 
-
-  if (rarity === 'SSR') body.classList.add('shake-extreme');
-  else if (rarity === 'SR') body.classList.add('shake-heavy');
-  else body.classList.add('shake-light');
-
-  setTimeout(() => {
-    body.classList.remove('shake-extreme', 'shake-heavy', 'shake-light');
-  }, 300);
-}
-// ── TEXT SLAM GENERATOR ───────────────────────────────────────────
+// ── TEXT SLAM ─────────────────────────────────────────────────────
 function slamText(prefix, text, rarity) {
   return new Promise(resolve => {
     const container = document.getElementById('hypeTextContainer');
     const line = document.createElement('div');
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 400 + Math.random() * 300; 
-    const startX = Math.cos(angle) * distance + 'px';
-    const startY = Math.sin(angle) * distance + 'px';
-    
     const isSSR = rarity === 'SSR';
-    const isSR = rarity === 'SR';
+    const isSR  = rarity === 'SR';
 
-    line.className = 'hype-line' + (isSSR ? ' ssr-glitch' : (isSR ? ' sr-hype' : ''));
-    line.style.setProperty('--startX', startX);
-    line.style.setProperty('--startY', startY);
-    line.style.setProperty('--startScale', isSSR ? '8' : '3');
-    line.style.setProperty('--dur', isSSR ? '0.15s' : '0.3s');
+    line.className = 'hype-line' + (isSSR ? ' ssr-glitch' : isSR ? ' sr-hype' : '');
+    line.textContent = prefix ? (prefix + ' ' + text) : text;
+
+    const angle = Math.random() * Math.PI * 2;
+    line.style.setProperty('--startX',     Math.cos(angle) * 500 + 'px');
+    line.style.setProperty('--startY',     Math.sin(angle) * 500 + 'px');
+    line.style.setProperty('--startScale', isSSR ? '12' : '4');
+    line.style.setProperty('--dur',        isSSR ? '0.7s' : '0.5s');
 
     container.appendChild(line);
-    line.textContent = prefix + " " + text;
-    
-    triggerScreenShake(rarity);
+
+    document.body.classList.remove('shake-extreme', 'shake-heavy', 'shake-light');
+    void document.body.offsetWidth; // Force Reflow
+
     if (isSSR) {
-        document.body.classList.add('bg-flash-strike');
-        setTimeout(() => document.body.classList.remove('bg-flash-strike'), 400);
+      document.body.classList.add('shake-extreme', 'bg-flash-strike');
+      setTimeout(() => document.body.classList.remove('shake-extreme', 'bg-flash-strike'), 400);
+    } else if (isSR) {
+      document.body.classList.add('shake-heavy');
+      setTimeout(() => document.body.classList.remove('shake-heavy'), 300);
+    } else {
+      document.body.classList.add('shake-light');
+      setTimeout(() => document.body.classList.remove('shake-light'), 200);
     }
-    setTimeout(resolve, 600);
+
+    setTimeout(resolve, isSSR ? 700 : 500);
   });
 }
-//// ── PULL HANDLER (PHONE OPTIMIZED) ─────────────────────────────────
+
+// ── Pull Logic ────────────────────────────────────────────────────
 async function doSinglePull() {
-  if (state.gems < 100) return showToast("❌ NOT ENOUGH GEMS!"); 
+  if (state.gems < 100) return showToast("❌ NOT ENOUGH GEMS!");
   state.gems -= 100;
-  
-  unlockAudioContext(); 
+  unlockAudioContext();
   disableButtons(true);
   updateUI();
-  
+
   const card = getCardFromDatabase(state.pityCount >= 49);
-  
+  if (!card) {
+      showToast("❌ No cards in database!");
+      disableButtons(false);
+      return;
+  }
+
   document.getElementById('cardPlaceholder').style.display = 'none';
   document.getElementById('cardWrapper').classList.remove('visible', 'aura-ssr', 'aura-sr');
-  
-  const hypeOverlay = document.getElementById('revealHypeOverlay');
+
+  const hypeOverlay  = document.getElementById('revealHypeOverlay');
   const textContainer = document.getElementById('hypeTextContainer');
-  textContainer.innerHTML = ''; 
+  textContainer.innerHTML = '';
   hypeOverlay.classList.add('visible');
 
-  // Start music
-  fetchiTunes(card.group, card.albumName).then(music => { if (music) renderMusic(music, card.group); });
+  fetchiTunes(card.group, card.albumName).then(music => {
+    if (music) renderMusic(music, card.group);
+  });
 
   if (card.rarity === 'SSR') {
     await slamText("!!!", "ANOMALY DETECTED", 'SSR');
@@ -2949,7 +2756,7 @@ async function doSinglePull() {
 
   await slamText("GROUP:", card.group, 'N');
   await slamText("ALBUM:", card.albumName, 'R');
-  await slamText("", card.member.toUpperCase(), card.rarity); 
+  await slamText("", card.member.toUpperCase(), card.rarity);
 
   setTimeout(() => {
     hypeOverlay.classList.remove('visible');
@@ -2959,63 +2766,76 @@ async function doSinglePull() {
 
 function displayCardUI(card) {
   currentCard = card;
-  const wrapper = document.getElementById('cardWrapper');
-  const inner = document.getElementById('cardInner');
-  const front = document.getElementById('cardFront');
-  const photoEl = document.getElementById('cardPhoto');
+  const wrapper  = document.getElementById('cardWrapper');
+  const inner    = document.getElementById('cardInner');
+  const front    = document.getElementById('cardFront');
+  const photoEl  = document.getElementById('cardPhoto');
 
-  document.getElementById('cardGroup').textContent = card.group;
-  document.getElementById('cardAlbum').textContent = card.albumName;
-  document.getElementById('cardMember').textContent = card.member.toUpperCase();
-  document.getElementById('cardRarity').textContent = rarityStars(card.rarity);
+  document.getElementById('cardGroup').textContent    = card.group;
+  document.getElementById('cardAlbum').textContent    = card.albumName;
+  document.getElementById('cardMember').textContent   = card.member.toUpperCase();
+  document.getElementById('cardRarity').textContent   = rarityStars(card.rarity);
   document.getElementById('cardPosition').textContent = card.position;
-  document.getElementById('cardVer').textContent = card.version;
+  document.getElementById('cardVer').textContent      = card.version;
   photoEl.src = card.image;
 
-  front.className = `card-face card-front rarity-${card.rarity.toLowerCase()} revealed`;
-  wrapper.className = `card-wrapper visible animate rarity-${card.rarity.toLowerCase()}`;
+  wrapper.className = `card-wrapper visible animate rarity-${card.rarity.toLowerCase()} revealed`;
+  front.className   = `card-face card-front rarity-${card.rarity.toLowerCase()} revealed`;
   photoEl.classList.add('revealed');
   photoEl.style.opacity = '1';
-  
-  ['cardRarity','cardPosition','cardVer'].forEach(id => document.getElementById(id).style.opacity = '1');
-  const dropEls = document.querySelectorAll('#cardGroup, #cardMember, #cardAlbum');
-  dropEls.forEach(el => { el.style.transform = 'translateY(0)'; el.style.opacity = '1'; });
+  ['cardRarity', 'cardPosition', 'cardVer'].forEach(id =>
+    (document.getElementById(id).style.opacity = '1')
+  );
 
   inner.classList.remove('flipped');
   setTimeout(() => {
     inner.classList.add('flipped');
-    setTimeout(() => {
-      triggerRarityEffect(card.rarity);
-    }, 600); 
+    setTimeout(() => triggerRarityEffect(card.rarity), 600);
   }, 400);
 
-  processPull(card); updateUI(); saveState(); disableButtons(false);
+  processPull(card);
+  updateUI();
+  saveState();
+  disableButtons(false);
 }
 
 function processPull(card) {
-  state.totalPulls++; state.pityCount++;
+  state.totalPulls++;
+  state.pityCount++;
   if (card.rarity === 'SSR') { state.ssrCount++; state.pityCount = 0; }
-  state.collection.unshift({ id: Date.now() + Math.random(), group: card.group, member: card.member, albumName: card.albumName, rarity: card.rarity, image: card.image, version: card.version || 'VER. A', position: card.position || '' });
+  state.collection.unshift({
+    id: Date.now() + Math.random(),
+    group: card.group, member: card.member, albumName: card.albumName,
+    rarity: card.rarity, image: card.image,
+    version: card.version || 'VER. A', position: card.position || ''
+  });
   if (state.collection.length > 200) state.collection = state.collection.slice(0, 200);
 }
 
 async function doFreePull() {
   if (state.freePullUsed) { showToast('⏰ Come back tomorrow!'); return; }
-  state.freePullUsed = true; state.freePullDate = new Date().toDateString();
-  
-  // The Free Pull shouldn't cost gems! Temporarily give them 100 gems to cover the cost of the function
-  state.gems += 100; 
-  updateUI(); 
+  state.freePullUsed = true;
+  state.freePullDate = new Date().toDateString();
+  state.gems += 100;
+  updateUI();
   await doSinglePull();
 }
 
-// ── Collection modal ──────────────────────────────────────────────
-function openCollection() { document.getElementById('collectionModal').classList.add('visible'); renderCollection(); }
-function closeCollection() { document.getElementById('collectionModal').classList.remove('visible'); }
+// ── Collection Binder ─────────────────────────────────────────────
+function openCollection() {
+  document.getElementById('collectionModal').classList.add('visible');
+  renderCollection();
+}
+function closeCollection() {
+  document.getElementById('collectionModal').classList.remove('visible');
+}
 
 function renderCollection() {
   const content = document.getElementById('modalContent');
-  if (!state.collection.length) { content.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px">Pull cards to start your collection!</div>'; return; }
+  if (!state.collection.length) {
+    content.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px">Pull cards to start your collection!</div>';
+    return;
+  }
   const organized = {};
   state.collection.forEach(c => {
     if (!organized[c.group]) organized[c.group] = {};
@@ -3028,8 +2848,11 @@ function renderCollection() {
     for (const a in organized[g]) {
       html += `<div class="collection-album-title">${a}</div><div class="modal-grid">`;
       organized[g][a].forEach(c => {
-        const imgHtml = c.image ? `<img src="${c.image}" onerror="this.parentElement.style.background='#1a1a2e';this.remove();">` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem">📸</div>`;
-        html += `<div class="mini-card mini-rarity-${c.rarity.toLowerCase()}" style="background:linear-gradient(135deg,#1a1a2e,#16213e)" onclick="openLightboxFromData('${c.image}','${c.group}','${c.member}','${a}','${c.rarity}','${c.position||''}','${c.version||'VER. A'}')">${imgHtml}<div class="mini-card-info"><div class="mini-card-name">${c.member.toUpperCase()}</div><div>${rarityStars(c.rarity)}</div></div></div>`;
+        const safe = c.image ? c.image.replace(/'/g, "\\'") : '';
+        const imgHtml = safe
+          ? `<img src="${safe}" onerror="this.parentElement.style.background='#1a1a2e';this.remove();">`
+          : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem">📸</div>`;
+        html += `<div class="mini-card mini-rarity-${c.rarity.toLowerCase()}" onclick="openLightboxFromData('${safe}','${c.group}','${c.member}','${a}','${c.rarity}')">${imgHtml}<div class="mini-card-info"><div class="mini-card-name">${c.member.toUpperCase()}</div><div>${rarityStars(c.rarity)}</div></div></div>`;
       });
       html += `</div>`;
     }
@@ -3038,134 +2861,56 @@ function renderCollection() {
   content.innerHTML = html;
 }
 
-function updateUI() {
-  document.getElementById('totalPulls').textContent = state.totalPulls;
-  document.getElementById('ssrCount').textContent = state.ssrCount;
-  document.getElementById('collectionSizeBtnTop').textContent = state.collection.length;
-  document.getElementById('pityBar').style.width = ((state.pityCount / 50) * 100) + '%';
-  document.getElementById('pityCount').textContent = `${state.pityCount} / 50`;
-  
-  const gemCountEl = document.getElementById('gemCount');
-  if (gemCountEl) gemCountEl.textContent = state.gems;
-  
-  if (state.freePullUsed) { const b = document.getElementById('freeBtn'); if(b) { b.disabled = true; b.textContent = '🎁 FREE PULL USED — COME BACK TOMORROW'; } }
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
-
-updateUI();
-
-// ── MINIGAME ENGINE (PHONE OPTIMIZED) ──────────────────────────────
-const GAMES_CONFIG = [
-  { id:'bias', icon:'🎵', name:'Bias Guesser' },
-  { id:'lyric', icon:'📝', name:'Lyric Fill' },
-  { id:'missing', icon:'❓', name:'Who is it?' },
-  { id:'lightstick', icon:'🪅', name:'Lightstick' },
-  { id:'sasaeng', icon:'🏃', name:'Escape' }
-];
-
+// ── Minigame Hub ──────────────────────────────────────────────────
 function openMgHub() {
   document.getElementById('mgOverlay').classList.add('visible');
-  document.getElementById('mgGemsDisplay').textContent = state.gems;
   renderMgGrid();
 }
-
+function closeMgOverlay() {
+  document.getElementById('mgOverlay').classList.remove('visible');
+}
 function renderMgGrid() {
   const grid = document.getElementById('mgGrid');
+  if (!grid) return;
   grid.innerHTML = '';
-  GAMES_CONFIG.forEach(g => {
+  const games = [
+    { id: 'bias',       icon: '🎵', name: 'Bias Guesser' },
+    { id: 'lyric',      icon: '📝', name: 'Lyric Fill'   },
+    { id: 'missing',    icon: '❓', name: 'Who is it?'   },
+    { id: 'lightstick', icon: '🪅', name: 'Lightstick'   },
+    { id: 'sasaeng',    icon: '🏃', name: 'Escape'       }
+  ];
+  games.forEach(g => {
     const div = document.createElement('div');
     div.className = 'mg-card';
-    div.innerHTML = `<div class="mg-card-icon">${g.icon}</div><div class="mg-card-info"><div class="mg-card-name">${g.name}</div></div>`;
-    div.onclick = () => launchGame(g.id);
+    div.innerHTML = `<div class="mg-card-icon" style="font-size: 2rem;">${g.icon}</div><div class="mg-card-info"><div class="mg-card-name" style="margin-top: 5px; font-family: Bebas Neue; color: white;">${g.name}</div></div>`;
+    div.style.background = 'var(--surface)';
+    div.style.border = '1px solid var(--border)';
+    div.style.padding = '15px';
+    div.style.borderRadius = '12px';
+    div.style.cursor = 'pointer';
+    
+    div.onclick = () => {
+      if (g.id === 'lyric') {
+        startLyricGame();
+      } else if (g.id === 'missing') {
+        startMissingGame();
+      } else if (g.id === 'bias') {
+        startBiasGame();
+      } else {
+        showToast(`🚧 ${g.name} coming soon!`);
+      }
+    };
+    
     grid.appendChild(div);
   });
 }
 
-// ── GAME 1: BIAS GUESSER ──────────────────────────────────────────
-let bgRound = 0, bgScore = 0;
-async function bgStart() {
-  document.getElementById('bg-start').style.display = 'none';
-  bgRound = 0; bgScore = 0;
-  bgNextRound();
-}
-async function bgNextRound() {
-  bgRound++;
-  if(bgRound > 5) return bgEnd();
-  document.getElementById('bg-round').textContent = `${bgRound}/5`;
-  // Logic to fetch iTunes and show choices...
-}
-
-// ── GAME 4: LIGHTSTICK (THE "PHONE" GAME) ──────────────────────────
-let lsActive = false;
-function lsStart() {
-  document.getElementById('ls-start').style.display = 'none';
-  lsActive = true;
-  let timeLeft = 20;
-  let score = 0;
-  const area = document.getElementById('ls-play-area');
-  area.innerHTML = '';
-  
-  const timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById('ls-time').textContent = timeLeft;
-    if(timeLeft <= 0) {
-      clearInterval(timer);
-      lsActive = false;
-      addGems(score * 10);
-      document.getElementById('ls-result').classList.add('show');
-      document.getElementById('ls-result-gems').textContent = `+${score * 10} 💎`;
-    }
-    // Spawn sticks
-    if(lsActive) spawnStick(area, () => { score++; document.getElementById('ls-score').textContent = score; });
-  }, 800);
-}
-
-function spawnStick(area, onHit) {
-  const s = document.createElement('div');
-  s.className = 'lightstick';
-  s.style.left = (Math.random() * 80 + 10) + '%';
-  s.style.top = (Math.random() * 80 + 10) + '%';
-  s.innerHTML = `<div class="lightstick-body" style="background:var(--accent1); box-shadow:0 0 15px var(--accent1);"></div>`;
-  s.ontouchstart = (e) => { e.preventDefault(); onHit(); s.remove(); };
-  area.appendChild(s);
-  setTimeout(() => s.remove(), 1500);
-}
-
-// ── CORE UTILS ─────────────────────────────────────────────────────
-function addGems(amt) {
-  state.gems += amt;
-  updateUI();
-  saveState();
-  if(document.getElementById('mgGemsDisplay')) document.getElementById('mgGemsDisplay').textContent = state.gems;
-}
-
-function updateUI() {
-  document.getElementById('totalPulls').textContent = state.totalPulls;
-  document.getElementById('ssrCount').textContent = state.ssrCount;
-  document.getElementById('collectionSizeBtnTop').textContent = state.collection.length;
-  document.getElementById('pityBar').style.width = ((state.pityCount / 50) * 100) + '%';
-  document.getElementById('pityCount').textContent = `${state.pityCount} / 50`;
-  if (document.getElementById('gemCount')) document.getElementById('gemCount').textContent = state.gems;
-}
-
-function disableButtons(d) { 
-  const btns = document.querySelectorAll('.btn-pull');
-  btns.forEach(b => d ? b.classList.add('btn-disabled') : b.classList.remove('btn-disabled')); 
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// Initial UI sync
-updateUI();
-
-// Keyboard ESC closes lightbox
+// ── Event Listeners ───────────────────────────────────────────────
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ── Init ──────────────────────────────────────────────────────────
+updateUI();
 
 </script>
 </body>
