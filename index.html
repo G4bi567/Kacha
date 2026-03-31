@@ -2503,46 +2503,55 @@ async function fetchiTunes(groupName, albumName) {
     "strategy": "1774299753"
   };
 
-    try {
-        const directId = ALBUM_IDS[dbAlbum];
-        
-        // 1. Define the actual Apple URL
-        const appleUrl = directId
-        ? `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes`
-        : `https://itunes.apple.com/search?term=${encodeURIComponent(groupName + " " + albumName)}&media=music&entity=song&limit=100&explicit=Yes`;
+  try {
+    const directId = ALBUM_IDS[dbAlbum];
+    const appleUrl = directId
+      ? `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes`
+      : `https://itunes.apple.com/search?term=${encodeURIComponent(groupName + " " + albumName)}&media=music&entity=song&limit=100&explicit=Yes`;
 
-        // 2. Wrap it in a CORS proxy so Apple doesn't block your local server!
-        const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(appleUrl)}`;
+    // ── BULLETPROOF CORS BYPASS: JSONP ──
+    const data = await new Promise((resolve, reject) => {
+      // Create a unique callback function name
+      const callbackName = 'itunes_cb_' + Date.now() + Math.round(Math.random() * 10000);
+      
+      // Define the callback function on the window
+      window[callbackName] = function(json) {
+        delete window[callbackName]; // Clean up
+        resolve(json);
+      };
+      
+      // Inject the script tag to bypass CORS
+      const script = document.createElement('script');
+      script.src = appleUrl + '&callback=' + callbackName;
+      script.onerror = () => reject(new Error("JSONP Request Failed"));
+      script.onload = () => script.remove(); // Clean up the tag after loading
+      document.head.appendChild(script);
+    });
 
-        const res = await fetch(proxiedUrl);
-        if (res.status === 403) return null;
-        const data = await res.json();
+    const blacklist = ["intro","outro","interlude","skit","instrumental","speech","voice","karaoke"];
+    const validTracks = (data.results || []).filter(t => {
+      if (t.kind !== 'song' || t.wrapperType !== 'track') return false;
+      const itunesArtist = normalize(t.artistName);
+      const itunesTrack = normalize(t.trackName || "");
+      const artistList = itunesArtist.split(/&|,|feat\.| x | with /).map(a => a.trim());
+      if (!artistList.includes(dbArtist) && itunesArtist !== dbArtist) return false;
+      return !blacklist.some(b => itunesTrack.includes(b));
+    });
 
-        const blacklist = ["intro","outro","interlude","skit","instrumental","speech","voice","karaoke"];
-        const validTracks = (data.results || []).filter(t => {
-        if (t.kind !== 'song' || t.wrapperType !== 'track') return false;
-        const itunesArtist = normalize(t.artistName);
-        const itunesTrack = normalize(t.trackName || "");
-        const artistList = itunesArtist.split(/&|,|feat\.| x | with /).map(a => a.trim());
-        if (!artistList.includes(dbArtist) && itunesArtist !== dbArtist) return false;
-        return !blacklist.some(b => itunesTrack.includes(b));
-        });
-
-        if (validTracks.length > 0) {
-        const pick = validTracks[Math.floor(Math.random() * validTracks.length)];
-        return {
-            trackName: pick.trackName,
-            albumArt: pick.artworkUrl100?.replace('100x100', '600x600'),
-            previewUrl: pick.previewUrl
-        };
-        }
-        return null;
-    } catch(e) { 
-        console.error("Music fetch error:", e); 
-        return null; 
+    if (validTracks.length > 0) {
+      const pick = validTracks[Math.floor(Math.random() * validTracks.length)];
+      return {
+        trackName: pick.trackName,
+        albumArt: pick.artworkUrl100?.replace('100x100', '600x600'),
+        previewUrl: pick.previewUrl
+      };
     }
+    return null;
+  } catch(e) { 
+    console.error("Music fetch error:", e); 
+    return null; 
+  }
 }
-
 function renderMusic(music, groupName) {
   const audio = document.getElementById('audioPlayer');
   audio.pause(); audio.removeAttribute('src'); audio.load();
