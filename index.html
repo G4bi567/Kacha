@@ -2288,42 +2288,81 @@ function getCardFromDatabase(isPitySSR) {
 function rarityStars(r) { return { SSR:'⭐⭐⭐⭐', SR:'⭐⭐⭐', R:'⭐⭐', N:'⭐' }[r] || '⭐'; }
 
 // ── STRICT ALBUM MUSIC MATCHING ───────────────────────────────────
-async function fetchiTunes(groupName, albumName) {
-  const safeAlbumName = albumName || '';
-  let cleanAlbum = safeAlbumName.replace(/- Single|- EP/gi, '');
-  cleanAlbum = cleanAlbum.replace(/[^a-zA-Z0-9가-힣 ]/g, ' ').trim();
+async function testMusic() {
+  const artist = document.getElementById('debugArtist').value;
+  const album = document.getElementById('debugAlbum').value;
+  const log = document.getElementById('debugLog');
   
-  const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(groupName + ' ' + cleanAlbum)}&media=music&entity=song&limit=15&country=us`;
+  log.innerHTML = `🔍 Searching iTunes for: "${artist}"...`;
+  const music = await fetchiTunes(artist, album);
+  
+  if (music) {
+    log.innerHTML = `<span style="color:#00ff00">✅ SUCCESS</span><br>Track: ${music.trackName}<br>Artist: ${artist}`;
+    renderMusic(music, artist);
+  } else {
+    log.innerHTML = `<span style="color:#ff4444">❌ FAILED</span><br>iTunes couldn't match "${artist}". Try adding "BTS" or "BLACKPINK" after the name.`;
+  }
+}
+// ── STRICT ALBUM MUSIC MATCHING ───────────────────────────────────
+// UPDATE your fetchiTunes with this enhanced version
+async function fetchiTunes(groupName, albumName) {
+  // Ultra-aggressive cleaning: removes everything except plain letters and numbers
+  const atomicClean = (s) => {
+    if (!s) return "";
+    return s.toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "") // remove accents
+            .replace(/[^a-z0-9]/g, "");     // remove spaces, dots, dashes, everything
+  };
+
+  const cardArtist = atomicClean(groupName);
+  const cardAlbum = atomicClean(albumName.replace(/- Single|- EP/gi, ''));
+  const blacklist = ["intro", "outro", "interlude", "skit", "talk", "speech", "commentary", "ennie on"];
+
+  // Atomic Search: Artist + Album
+  const searchTerm = `${groupName} ${albumName}`;
+  const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=50`;
 
   try {
     const res = await fetch(itunesUrl);
-    if (!res.ok) return null;
-    
     const data = await res.json();
-    const tracks = (data.results || []).filter(t => t.previewUrl);
     
-    if (tracks.length > 0) {
-      const target = cleanAlbum.toLowerCase();
-      let bestMatch = tracks.find(t => 
-        (t.collectionName && t.collectionName.toLowerCase().includes(target)) || 
-        (t.trackName && t.trackName.toLowerCase().includes(target))
-      );
-      
-      const pick = bestMatch || tracks[0]; 
-      
+    let validTracks = (data.results || []).filter(t => {
+      const trackTitle = t.trackName.toLowerCase();
+      const itunesArtist = atomicClean(t.artistName);
+      const itunesAlbum = atomicClean(t.collectionName);
+
+      const isBlacklisted = blacklist.some(word => trackTitle.includes(word));
+      if (isBlacklisted) return false;
+
+      // Logic: Does the iTunes artist contain our card artist (or vice-versa)?
+      const artistMatch = itunesArtist.includes(cardArtist) || cardArtist.includes(itunesArtist);
+      // Logic: Does the iTunes album contain our card album (or vice-versa)?
+      const albumMatch = itunesAlbum.includes(cardAlbum) || cardAlbum.includes(itunesAlbum);
+
+      return t.previewUrl && t.kind === 'song' && artistMatch && albumMatch;
+    });
+
+    // CRITICAL FALLBACK: If nothing matches "Artist + Album", just find ANY song by that Artist
+    if (validTracks.length === 0) {
+      console.warn("Atomic album match failed. Trying Artist-only fallback...");
+      validTracks = (data.results || []).filter(t => {
+        const itunesArtist = atomicClean(t.artistName);
+        return t.previewUrl && itunesArtist.includes(cardArtist);
+      });
+    }
+
+    if (validTracks.length > 0) {
+      const pick = validTracks[Math.floor(Math.random() * validTracks.length)];
       return {
         trackName: pick.trackName,
-        albumArt: pick.artworkUrl100?.replace('100x100', '300x300'),
+        albumArt: pick.artworkUrl100?.replace('100x100', '600x600'),
         previewUrl: pick.previewUrl
       };
     }
-  } catch(e) { 
-    console.error("Music fetch failed:", e); 
-  }
-  
+  } catch(e) { console.error("Search Error:", e); }
   return null;
-}saveState
-
+}
 // ── MUSIC FADE-IN ─────────────────────────────────────────────────
 function renderMusic(music, groupName) {
   const audio = document.getElementById('audioPlayer');
