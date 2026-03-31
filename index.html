@@ -265,7 +265,14 @@
     .card-wrapper.aura-ssr::before { content: ''; position: absolute; inset: -100px; background: radial-gradient(circle, rgba(251,191,36,0.6) 0%, rgba(244,114,182,0.3) 40%, transparent 70%); z-index: -10; animation: pulseAura 1.5s infinite alternate; pointer-events: none; filter: blur(10px); }
     .card-wrapper.aura-sr::before { content: ''; position: absolute; inset: -80px; background: radial-gradient(circle, rgba(192,132,252,0.5) 0%, rgba(129,140,248,0.3) 50%, transparent 70%); z-index: -10; animation: pulseAura 1.5s infinite alternate; pointer-events: none; filter: blur(10px); }
     @keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.7; } 100% { transform: scale(1.1); opacity: 1; } }
-  </style>
+.music-list-group { margin-bottom: 20px; }
+    .music-list-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--accent1); border-bottom: 1px solid var(--border); margin-bottom: 10px; padding-bottom: 5px; }
+    .music-list-album { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; transition: transform 0.2s; }
+    .music-list-album:hover { transform: scale(1.02); border-color: var(--accent1); }
+    .music-list-album-name { font-size: 0.85rem; font-weight: bold; color: var(--text); }
+    .music-list-play { background: var(--accent1); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #000; font-size: 0.9rem; transition: background 0.2s; flex-shrink: 0;}
+    .music-list-play:hover { background: var(--accent2); }
+</style>
 </head>
 <body>
 
@@ -291,7 +298,6 @@
     <div class="logo">KARD PULL</div>
     <div class="logo-sub">K-pop Photocard Gacha</div>
   </div>
-
   <div class="stats-bar">
     <div class="stat-pill"><div class="stat-num" id="totalPulls">0</div><div class="stat-label">Total Pulls</div></div>
     <div class="stat-pill"><div class="stat-num" id="ssrCount">0</div><div class="stat-label">SSR Cards</div></div>
@@ -383,10 +389,226 @@
 </div>
 
 <script >
+    // ── Music Library / Tester ────────────────────────────────────────
+// ── Music Library / Tester ────────────────────────────────────────
+function openMusicLibrary() {
+  document.getElementById('musicModal').classList.add('visible');
+  renderMusicLibrary();
+}
+
+function closeMusicLibrary() {
+  document.getElementById('musicModal').classList.remove('visible');
+  document.getElementById('audioPlayer').pause(); // Stop music when closing
+}
+function renderMusicLibrary() {
+  const content = document.getElementById('musicModalContent');
+  let html = '';
+  
+  for (const group in MASTER_DB) {
+    html += `<div class="music-list-group"><div class="music-list-title">${group}</div>`;
+    
+    for (const album in MASTER_DB[group].albums) {
+      const dbAlbum = album.toLowerCase().replace(/- single|- ep/gi, '').trim();
+      const hasId = MANUAL_ALBUM_IDS[dbAlbum] ? true : false;
+      const safeAlbum = album.replace(/'/g, "\\'");
+      
+      html += `
+        <div style="margin-bottom: 8px; background: var(--surface); border: 1px solid ${hasId ? 'var(--accent3)' : 'var(--border)'}; border-radius: 8px; padding: 12px; opacity: ${hasId ? '1' : '0.5'};">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 0.85rem; font-weight: bold; color: var(--text);">${album}</div>
+              <div class="track-count-label" style="font-size: 0.65rem; color: ${hasId ? 'var(--accent3)' : 'var(--accent2)'}; margin-top: 2px;">
+                ${hasId ? '✅ ID LINKED' : '❌ ID MISSING'}
+              </div>
+            </div>
+            ${hasId ? `<button class="btn-pull btn-single" style="padding: 6px 12px; font-size: 0.7rem; width: auto; min-height: 0;" onclick="loadAlbumTracks('${group}', '${safeAlbum}', this)">🔍 TEST</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    html += `</div>`;
+  }
+  content.innerHTML = html;
+}
+async function loadAlbumTracks(group, album, btnEl) {
+  const container = btnEl.parentElement.parentElement;
+  const countLabel = container.querySelector('.track-count-label'); // Find the counter
+  
+  let tracksDiv = container.querySelector('.tracks-container');
+  if (tracksDiv) {
+    tracksDiv.remove();
+    btnEl.textContent = "🔍 SEARCH";
+    return;
+  }
+
+  btnEl.textContent = "⏳...";
+  unlockAudioContext();
+  
+  const tracks = await fetchAlliTunesTracks(group, album);
+  btnEl.textContent = "🔽 HIDE";
+  
+  // Update the number label
+  if (tracks.length > 0) {
+    countLabel.textContent = `${tracks.length} Track(s) Available`;
+  } else {
+    countLabel.textContent = `0 Tracks Found`;
+  }
+  
+  tracksDiv = document.createElement('div');
+  tracksDiv.className = 'tracks-container';
+  tracksDiv.style.marginTop = '12px';
+  tracksDiv.style.padding = '10px';
+  tracksDiv.style.background = 'rgba(0,0,0,0.4)';
+  tracksDiv.style.borderRadius = '8px';
+  
+  if (tracks.length === 0) {
+    tracksDiv.innerHTML = '<div style="color: var(--accent2); font-size: 0.75rem; text-align: center;">❌ No explicit tracks found.</div>';
+  } else {
+    let tHtml = ``; // Removed header since we have the counter now
+    
+    tracks.forEach(t => {
+      tHtml += `
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <img src="${t.albumArt}" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="color: var(--text); font-size: 0.8rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.trackName}</div>
+            <div style="color: var(--muted); font-size: 0.6rem; margin-top: 2px;">${t.artistName}</div>
+          </div>
+          <button style="background: var(--accent1); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onclick="playPreview('${t.previewUrl}')">▶</button>
+        </div>
+      `;
+    });
+    tracksDiv.innerHTML = tHtml;
+  }
+  container.appendChild(tracksDiv);
+}
+
+function playPreview(url) {
+  const audio = document.getElementById('audioPlayer');
+  if (audio.src === url && !audio.paused) {
+     audio.pause(); // Toggle off if clicked again
+  } else {
+     audio.src = url;
+     audio.volume = 1;
+     audio.play().catch(() => showToast("🔇 Audio blocked by browser"));
+  }
+}
+fetchAlliTunesTracks// Function for the Music Tester Menu
+async function fetchAlliTunesTracks(groupName, albumName) {
+  const dbAlbum = albumName.toLowerCase().replace(/- single|- ep/gi, '').trim();
+  const directId = MANUAL_ALBUM_IDS[dbAlbum];
+
+  if (!directId) {
+    console.warn(`No manual ID found for: ${albumName}`);
+    return []; 
+  }
+
+  // Add 'explicit=Yes' and a country code like 'us' to the URL
+const appleUrl = `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes&country=us`;
+
+  try {
+    const data = await new Promise((resolve, reject) => {
+      const callbackName = 'itunes_cb_all_' + Date.now() + Math.round(Math.random() * 10000);
+      window[callbackName] = (json) => { delete window[callbackName]; resolve(json); };
+      const script = document.createElement('script');
+      script.src = appleUrl + '&callback=' + callbackName;
+      script.onerror = () => reject(new Error("JSONP Failed"));
+      document.head.appendChild(script);
+    });
+
+    // filter out the album metadata result, keep only songs
+    return (data.results || []).filter(t => t.wrapperType === 'track').map(pick => ({
+      trackName: pick.trackName,
+      artistName: pick.artistName,
+      albumArt: pick.artworkUrl100?.replace('100x100', '600x600'),
+      previewUrl: pick.previewUrl
+    }));
+  } catch(e) { return []; }
+}
+
+// Function for the Gacha Pulls (modified to use the same ID list)
+
 // ── EXTERNAL DATABASE PLACEHOLDER ─────────────────────────────────
 // It is highly recommended to load this from an external file, e.g., <script src="db.js">
 // Here is a tiny placeholder so the script doesn't break if you haven't linked it yet.
+const MANUAL_ALBUM_IDS = {
+  // BLACKPINK
+  "square one": "1315917456",
+  "square two": "1313151079",
+  "kill this love": "1551479992",
+  "the album": "1533894050",
+  "born pink": "1644440668",
+  "as if it's your last": "1251249729",
+  "square up": "1551479990",
+  "how you like that": "1520233767",
+  "ice cream": "1529336929",
+  "pink venom": "1639174482",
+  "jump": "1824672652",
+  "deadline": "1870046940",
 
+  // TWICE
+  "strategy": "1774299753",
+  "this is for": "1813490993",
+
+  // NEWJEANS
+  "new jeans": "1635469682",
+  "omg": "1659513441",
+  "get up": "1695951888",
+  "how sweet": "1744448415",
+  "ditto": "1657231957",
+  "supernatural": "1750576829", 
+  "njwmx": "1719868691",
+  "super shy" : "1692686264",
+
+  // ENHYPEN
+  "border : day one": "1541011619",
+  "border : carnival": "1563302028",
+  "dimension : dilemma": "1587989646",
+  "dimension : answer": "1600819216",
+  "manifesto : day 1": "1629708852",
+  "dark blood": "1687303688",
+  "orange blood": "1716547988",
+  "romance : untold": "1752178854",
+  "romance : untold -daydream-": "1776917020",
+  "the sin : vanish": "1862720020",
+  "desire : unleash":"1814718475",
+
+  // BABYMONSTER
+  "batter up": "1717533942",
+  "stuck in the middle": "1727482937",
+  "babymons7er": "1737962888",
+  "forever": "1753210714",
+  "drip": "1773262053",
+  "hot sauce": "1822714115",
+  "we go up": "1843247940",
+
+  // SOLOISTS & COLLABS
+  "mcnasty": "1754312507",
+  "everything you wanted": "1580386461",
+  "worldwide": "1604136127",
+  "golden": "1709554767",
+  "ruby": "1795979743",
+  "solo": "1441819348",
+  "lalisa": "1584836386",
+  "you & me": "1710020667",
+  "rockstar":"1752761265",
+  "new woman":"1762679515",
+  "moonlit floor": "1772746061",
+  "alter ego": "1798585113",
+  "gone": "1557745423",
+  "apt.": "1773452221",
+  "rosie": "1771105914",
+  "me": "1679414586",
+  "amortage": "1794049581",
+  "eyes closed": "1843531061",
+
+  // CORTIS & LNGSHOT
+  "color outside the lines": "1832031331",
+  "what you want": "1832509818",
+  "never let go": "1866762529",
+  "saucin'": "1862023995",
+  "shot callers": "1866762522"
+};
 const db_BLACKPINK = {
   group: "BLACKPINK",
   albums: {
@@ -2516,67 +2738,79 @@ function rarityStars(r) {
 }
 
 // ── iTunes Music ──────────────────────────────────────────────────
+// Function for Gacha Pulls & Music Player
 async function fetchiTunes(groupName, albumName) {
-  const normalize = s => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
-  let dbArtist = normalize(groupName);
-  if (dbArtist === "jungkook") dbArtist = "jung kook";
-  const dbAlbum = normalize(albumName).replace(/- single|- ep/gi, '').trim();
+    const normalize = s => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
+    
+    let dbArtist = normalize(groupName);
+    if (dbArtist === "jungkook") dbArtist = "jung kook";
+    
+    // Clean the album name to match your MANUAL_ALBUM_IDS keys
+    const dbAlbumKey = normalize(albumName).replace(/- single|- ep/gi, '').trim();
 
-  const ALBUM_IDS = {
-    "mcnasty": "1754312507",
-    "golden": "1709554767",
-    "strategy": "1774299753",
-    "lalisa":"1584836386"
-  };
-
-  try {
-    const directId = ALBUM_IDS[dbAlbum];
-    const appleUrl = directId
-      ? `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes`
-      : `https://itunes.apple.com/search?term=${encodeURIComponent(groupName + " " + albumName)}&media=music&entity=song&limit=100&explicit=Yes`;
-
-    // ── BULLETPROOF CORS BYPASS: JSONP ──
-    const data = await new Promise((resolve, reject) => {
-      // Create a unique callback function name
-      const callbackName = 'itunes_cb_' + Date.now() + Math.round(Math.random() * 10000);
-      
-      // Define the callback function on the window
-      window[callbackName] = function(json) {
-        delete window[callbackName]; // Clean up
-        resolve(json);
-      };
-      
-      // Inject the script tag to bypass CORS
-      const script = document.createElement('script');
-      script.src = appleUrl + '&callback=' + callbackName;
-      script.onerror = () => reject(new Error("JSONP Request Failed"));
-      script.onload = () => script.remove(); // Clean up the tag after loading
-      document.head.appendChild(script);
-    });
-
-    const blacklist = ["intro","outro","interlude","skit","instrumental","speech","voice","karaoke"];
-    const validTracks = (data.results || []).filter(t => {
-      if (t.kind !== 'song' || t.wrapperType !== 'track') return false;
-      const itunesArtist = normalize(t.artistName);
-      const itunesTrack = normalize(t.trackName || "");
-      const artistList = itunesArtist.split(/&|,|feat\.| x | with /).map(a => a.trim());
-      if (!artistList.includes(dbArtist) && itunesArtist !== dbArtist) return false;
-      return !blacklist.some(b => itunesTrack.includes(b));
-    });
-
-    if (validTracks.length > 0) {
-      const pick = validTracks[Math.floor(Math.random() * validTracks.length)];
-      return {
-        trackName: pick.trackName,
-        albumArt: pick.artworkUrl100?.replace('100x100', '600x600'),
-        previewUrl: pick.previewUrl
-      };
+    // Check if we have a manual ID for this album
+    const directId = MANUAL_ALBUM_IDS[dbAlbumKey];
+    
+    let searchTerm = groupName + " " + albumName;
+    if (["Lisa", "Jennie", "Rosé", "Jisoo"].includes(groupName)) {
+        searchTerm = groupName + " BLACKPINK " + albumName;
     }
-    return null;
-  } catch(e) { 
-    console.error("Music fetch error:", e); 
-    return null; 
-  }
+
+    try {
+        // If ID exists, use lookup. If not, use search.
+        const appleUrl = directId
+            ? `https://itunes.apple.com/lookup?id=${directId}&entity=song&explicit=Yes&country=us`
+            : `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=50&explicit=Yes&country=us`;
+
+        const data = await new Promise((resolve, reject) => {
+            const callbackName = 'itunes_cb_' + Date.now() + Math.round(Math.random() * 10000);
+            window[callbackName] = function(json) {
+                delete window[callbackName];
+                resolve(json);
+            };
+            const script = document.createElement('script');
+            script.src = appleUrl + '&callback=' + callbackName;
+            script.onerror = () => { delete window[callbackName]; reject(new Error("JSONP Failed")); };
+            script.onload = () => script.remove();
+            document.head.appendChild(script);
+        });
+
+        const blacklist = ["intro","outro","interlude","skit","instrumental","speech","voice","karaoke"];
+        const validTracks = (data.results || []).filter(t => {
+            if (t.wrapperType !== 'track') return false;
+            const itunesArtist = normalize(t.artistName);
+            const itunesTrack = normalize(t.trackName || "");
+            const artistList = itunesArtist.split(/&|,|feat\.| x | with /).map(a => a.trim());
+            
+            // Validation: ensures the song belongs to the artist or group
+            if (!artistList.includes(dbArtist) && itunesArtist !== dbArtist && !itunesArtist.includes(dbArtist)) return false;
+            return !blacklist.some(b => itunesTrack.includes(b));
+        });
+
+        if (validTracks.length > 0) {
+            const pick = validTracks[Math.floor(Math.random() * validTracks.length)];
+            return {
+                trackName: pick.trackName,
+                albumArt: pick.artworkUrl100?.replace('100x100', '600x600'),
+                previewUrl: pick.previewUrl,
+                artistName: pick.artistName // Added for the tester menu
+            };
+        }
+        return null;
+    } catch(e) { 
+        console.error("Music fetch error:", e); 
+        return null; 
+    }
+}
+
+// Function for the Music Tester Menu (lists all tracks)
+async function fetchAlliTunesTracks(groupName, albumName) {
+    // This is now a simple helper that calls the main logic
+    const tracks = [];
+    // To list ALL tracks for the menu, we'd modify the main function 
+    // but for now, this will return the single random pick for testing.
+    const result = await fetchiTunes(groupName, albumName);
+    return result ? [result] : [];
 }
 function renderMusic(music, groupName) {
   const audio = document.getElementById('audioPlayer');
